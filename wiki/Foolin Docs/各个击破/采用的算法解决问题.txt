@@ -1,0 +1,37 @@
+1、人脸检测采用Adaboost算法
+
+http://www.opencv.org.cn/index.php/%E4%BA%BA%E8%84%B8%E6%A3%80%E6%B5%8B
+
+2、人脸分割采用cvSetImageROI(img, rect2)
+
+
+=>人脸追踪？
+
+3、去噪声（小噪声）采用中值滤波：
+void cvSmooth( const CvArr* src, CvArr* dst,
+               int smoothtype=CV_GAUSSIAN,
+               int param1=3, int param2=0, double param3=0, double param4=0 );
+
+
+http://www.opencv.org.cn/index.php/Cv%E5%9B%BE%E5%83%8F%E5%A4%84%E7%90%86#Smooth
+
+4、二值化
+
+OpenCV二值化函数Threshold
+
+5、双眼水平
+
+
+
+6、中间清晰，边缘模糊
+
+
+7、明亮度自动调节
+
+
+
+
+
+
+
+
