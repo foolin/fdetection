@@ -1,0 +1,5 @@
+OpenCV学习笔记（9）利用MFC的Picture控件显示图像+播放视频和捕获摄像头画面 
+http://blog.csdn.net/chenyusiyuan/archive/2009/10/29/4744097.aspx
+
+OpenCV如何把图像显示到MFC的picture控件上
+http://www.aiseminar.cn/bbs/thread-335-1-1.html
