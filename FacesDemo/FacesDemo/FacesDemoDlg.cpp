@@ -123,6 +123,7 @@ BOOL CFacesDemoDlg::OnInitDialog()
 	GetDlgItem( IDC_REMOVE_NOISE )->EnableWindow( FALSE );
 	GetDlgItem( IDC_BINARY_IMAGE )->EnableWindow( FALSE );
 
+
 	return TRUE;  // 除非将焦点设置到控件，否则返回 TRUE
 }
 
@@ -338,7 +339,7 @@ void CFacesDemoDlg::OnBnClickedOpenImage()
 		OFN_FILEMUSTEXIST | OFN_PATHMUSTEXIST | OFN_HIDEREADONLY,
 		_T("image files (*.bmp; *.jpg) |*.bmp; *.jpg; *.jpeg | All Files (*.*) |*.*||"), NULL
 		);										// 选项图片的约定
-	dlg.m_ofn.lpstrTitle = _T("Open Image");	// 打开文件对话框的标题名
+	dlg.m_ofn.lpstrTitle = _T("打开图片");	// 打开文件对话框的标题名
 	if( dlg.DoModal() != IDOK )					// 判断是否获得图片
 		return;
 	
@@ -355,6 +356,7 @@ void CFacesDemoDlg::OnBnClickedOpenImage()
 
 	// 使边缘检测按钮生效
 	GetDlgItem( IDC_DETECT_FACE )->EnableWindow( TRUE );
+	GetDlgItem( IDC_SAVE_IMAGE )->EnableWindow( TRUE );
 
 }
 
@@ -363,12 +365,35 @@ void CFacesDemoDlg::OnBnClickedOpenImage()
 void CFacesDemoDlg::OnBnClickedSaveImage()
 {
 	// TODO: 在此添加控件通知处理程序代码
+	CFileDialog dlg(
+		FALSE, _T("*.bmp"), NULL,
+		OFN_FILEMUSTEXIST | OFN_PATHMUSTEXIST | OFN_HIDEREADONLY,
+		_T("image files (*.jpg; *.bmp) |*.jpg;*.bmp;  *.jpeg | All Files (*.*) |*.*||"), NULL
+		);										// 选项图片的约定
+	dlg.m_ofn.lpstrTitle = _T("保存图片");	// 打开文件对话框的标题名
+	dlg.m_ofn.lpstrDefExt = "jpg";
+	if( dlg.DoModal() != IDOK )				// 判断是否获得图片
+	{
+		return;
+	}
+	CString mPath = dlg.GetPathName();			// 获取图片路径
+	cvSaveImage(mPath, m_readImage);
+
 }
 
 //关于对话框
 void CFacesDemoDlg::OnBnClickedAboutUs()
 {
 	// TODO: 在此添加控件通知处理程序代码
+	/*
+	CString strAbout;
+	strAbout = "人脸检测 V1.0\n";
+	strAbout = strAbout + "Version:  1.0.0\n";
+	strAbout = strAbout + "Author :  Foolin\n";
+	strAbout = strAbout + "E-mail :  Foolin55@gmail.com\n";
+	MessageBox(strAbout);
+	*/
+	
 }
 
 
@@ -396,7 +421,14 @@ void CFacesDemoDlg::OnBnClickedDetectFace()
 	FaceDetect(m_readImage);
 	
 	CString strTips;
-	strTips.Format("图像处理完毕！共检测到%d张人脸！", m_facesCount);
+	if (m_facesCount > 0)
+	{
+		strTips.Format("图像处理完毕！共检测到%d张人脸！", m_facesCount);
+	}
+	else
+	{
+		strTips.Format("图像处理完毕！没有检测到人脸！", m_facesCount);
+	}
 	MessageBox(_T(strTips));
 }
 
