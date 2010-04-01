@@ -83,18 +83,17 @@ CAPTION "关于 FacesDemo"
 FONT 9, "MS Shell Dlg", 0, 0, 0x1
 BEGIN
     ICON            IDR_MAINFRAME,IDC_STATIC,14,14,20,20
-    LTEXT           "FacesDetection，1.0 版",IDC_STATIC,42,14,114,8,SS_NOPREFIX
+    LTEXT           "人脸的定位与分割 v1.0 0",IDC_STATIC,42,14,114,8,SS_NOPREFIX
     LTEXT           "Copyright (C) 2010, Foolin . All Rights Reserved.",IDC_STATIC,19,72,151,8
-    DEFPUSHBUTTON   "确定",IDOK,128,85,50,14,WS_GROUP
-    LTEXT           "Author: Foolin",IDC_STATIC,46,32,45,8
-    LTEXT           "E-mail: Foolin@liufu.org",IDC_STATIC,46,45,72,8
-    CONTROL         "主页：<a>http://Liufu.org/Ling</a>",IDC_SYSLINK1,"SysLink",WS_TABSTOP,46,57,90,8
+    LTEXT           "Author: Foolin",IDC_STATIC,42,32,45,8
+    LTEXT           "E-mail: Foolin@liufu.org",IDC_STATIC,42,45,72,8
+    LTEXT           "Blog:http://liufu.org/ling",IDC_STATIC,42,58,76,8
 END
 
 IDD_FACESDEMO_DIALOG DIALOGEX 0, 0, 290, 204
 STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_MINIMIZEBOX | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU
 EXSTYLE WS_EX_APPWINDOW
-CAPTION "FacesDemo"
+CAPTION "人脸的定位与分割 V1.0.0 Powered by Foolin"
 FONT 9, "MS Shell Dlg", 0, 0, 0x1
 BEGIN
     PUSHBUTTON      "退出",IDCANCEL,215,175,50,14
@@ -177,21 +176,6 @@ BEGIN
     END
 END
 #endif    // APSTUDIO_INVOKED
-
-
-/////////////////////////////////////////////////////////////////////////////
-//
-// Menu
-//
-
-IDR_MENU1 MENU 
-BEGIN
-    POPUP "文件"
-    BEGIN
-        MENUITEM "退出",                          ID_32771
-    END
-    MENUITEM "人脸检测",                        0
-END
 
 
 /////////////////////////////////////////////////////////////////////////////

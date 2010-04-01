@@ -393,6 +393,8 @@ void CFacesDemoDlg::OnBnClickedAboutUs()
 	strAbout = strAbout + "E-mail :  Foolin55@gmail.com\n";
 	MessageBox(strAbout);
 	*/
+	CAboutDlg aboutDlg;
+	aboutDlg.DoModal();
 	
 }
 
