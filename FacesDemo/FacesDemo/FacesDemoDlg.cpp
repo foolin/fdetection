@@ -49,6 +49,9 @@ END_MESSAGE_MAP()
 CFacesDemoDlg::CFacesDemoDlg(CWnd* pParent /*=NULL*/)
 	: CDialog(CFacesDemoDlg::IDD, pParent)
 	, m_readImage(NULL)
+	, m_storage(0)
+	, m_cascade(0)
+	, m_cascadeName(NULL)
 {
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
 }
@@ -107,7 +110,7 @@ BOOL CFacesDemoDlg::OnInitDialog()
     imgSize.height = IMAGE_HEIGHT;
     imgSize.width = IMAGE_WIDTH;
 	m_readImage = cvCreateImage( imgSize, IPL_DEPTH_8U, IMAGE_CHANNELS );
-
+	m_cascadeName = "shaarcascade_frontalface_alt2.xml";
 
 	return TRUE;  // 除非将焦点设置到控件，否则返回 TRUE
 }
@@ -294,7 +297,101 @@ void CFacesDemoDlg::OnBnClickedAboutUs()
 	aboutDlg.DoModal();
 }
 
+
+/***************************************/
+/*              人脸检测            ****/
+/***************************************/
 void CFacesDemoDlg::OnBnClickedDetectFace()
 {
 	// TODO: 在此添加控件通知处理程序代码
+	m_cascadeName = _T("E:\\OpenCV2.0\\data\\haarcascades\\haarcascade_frontalface_alt2.xml");
+	m_cascade = (CvHaarClassifierCascade*)cvLoad( m_cascadeName, 0, 0, 0 );
+    if( !m_cascade )
+    {
+        MessageBox(_T("对不起，人脸检测cascade配置不正确"));
+        return;
+    }
+    m_storage = cvCreateMemStorage(0);
+	if( !m_readImage )
+	{
+		MessageBox(_T("请先打开图像"));
+		return;
+	}
+    //人脸检测
+	FaceDetect(m_readImage);
+}
+
+void CFacesDemoDlg::FaceDetect( IplImage* img )
+{
+    static CvScalar colors[] = 
+    {
+        {{0,0,255}},
+        {{0,128,255}},
+        {{0,255,255}},
+        {{0,255,0}},
+        {{255,128,0}},
+        {{255,255,0}},
+        {{255,0,0}},
+        {{255,0,255}}
+    };
+ 
+    double scale = 1.3;
+    IplImage* gray = cvCreateImage( cvSize(img->width,img->height), 8, 1 );
+    IplImage* small_img = cvCreateImage( cvSize( cvRound (img->width/scale),
+                         cvRound (img->height/scale)),
+                     8, 1 );
+    int i;
+ 
+    cvCvtColor( img, gray, CV_BGR2GRAY );
+    cvResize( gray, small_img, CV_INTER_LINEAR );
+    cvEqualizeHist( small_img, small_img );
+    cvClearMemStorage( m_storage );
+ 
+    if( m_cascade )
+    {
+        double t = (double)cvGetTickCount();
+        CvSeq* faces = cvHaarDetectObjects( small_img, m_cascade, m_storage,
+                                            1.1, 2, 0/*CV_HAAR_DO_CANNY_PRUNING*/,
+                                            cvSize(30, 30) );
+        t = (double)cvGetTickCount() - t;
+        //printf( "detection time = %gms\n", t/((double)cvGetTickFrequency()*1000.) );
+        for( i = 0; i < (faces ? faces->total : 0); i++ )
+        {
+            CvRect* r = (CvRect*)cvGetSeqElem( faces, i );
+            CvPoint center;
+            int radius;
+            center.x = cvRound((r->x + r->width*0.5)*scale);
+            center.y = cvRound((r->y + r->height*0.5)*scale);
+            radius = cvRound((r->width + r->height)*0.25*scale);
+
+			/*
+			///方法二：仅仅将获取图片保存为实际区域的大小///
+			char filename[40] = "face.jpg";
+			//IplImage* img2 = cvCreateImage(cvSize(r->width+1,r->height+1), img->depth, img->nChannels ); 
+			//CvRect rect2 = cvRect(r->x - r->width, r->y, r->width+1,r->height+1);
+			//CvRect rect2 = cvRect(center.x - r->width, center.y - r->height, r->width+1,r->height+1);
+			int rect_size = 3;
+			CvRect rect2 = cvRect(center.x - radius + rect_size, center.y - radius + rect_size, radius*2 - rect_size*2, radius*2 - rect_size*2);
+			IplImage* img2 = cvCreateImage(cvSize(rect2.width , rect2.height), img->depth, img->nChannels ); 
+			cvSetImageROI(img, rect2);
+			cvCopy(img,img2);//复制对象区域 
+			cvShowImage( "result", img2 );
+			cvResetImageROI(img);
+			sprintf(filename,"images/face%d.jpg",i+1);
+			cvSaveImage(filename, img2);
+			printf( "Save img:%s\n", filename );
+			*/
+
+
+            cvCircle( img, center, radius, colors[i%8], 3, 8, 0 );
+			
+
+
+        }
+    }
+ 
+    //cvShowImage( "result", img );
+	ShowImage(img, IDC_IMAGE);
+    cvReleaseImage( &gray );
+    cvReleaseImage( &small_img );
 }
