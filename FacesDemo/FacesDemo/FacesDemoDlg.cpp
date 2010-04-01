@@ -1,0 +1,300 @@
+// FacesDemoDlg.cpp : 实现文件
+//
+
+#include "stdafx.h"
+#include "FacesDemo.h"
+#include "FacesDemoDlg.h"
+
+#ifdef _DEBUG
+#define new DEBUG_NEW
+#endif
+
+
+// 用于应用程序“关于”菜单项的 CAboutDlg 对话框
+
+class CAboutDlg : public CDialog
+{
+public:
+	CAboutDlg();
+
+// 对话框数据
+	enum { IDD = IDD_ABOUTBOX };
+
+	protected:
+	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV 支持
+
+// 实现
+protected:
+	DECLARE_MESSAGE_MAP()
+};
+
+CAboutDlg::CAboutDlg() : CDialog(CAboutDlg::IDD)
+{
+}
+
+void CAboutDlg::DoDataExchange(CDataExchange* pDX)
+{
+	CDialog::DoDataExchange(pDX);
+}
+
+BEGIN_MESSAGE_MAP(CAboutDlg, CDialog)
+END_MESSAGE_MAP()
+
+
+// CFacesDemoDlg 对话框
+
+
+
+
+CFacesDemoDlg::CFacesDemoDlg(CWnd* pParent /*=NULL*/)
+	: CDialog(CFacesDemoDlg::IDD, pParent)
+	, m_readImage(NULL)
+{
+	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
+}
+
+void CFacesDemoDlg::DoDataExchange(CDataExchange* pDX)
+{
+	CDialog::DoDataExchange(pDX);
+}
+
+BEGIN_MESSAGE_MAP(CFacesDemoDlg, CDialog)
+	ON_WM_SYSCOMMAND()
+	ON_WM_PAINT()
+	ON_WM_QUERYDRAGICON()
+	//}}AFX_MSG_MAP
+	ON_BN_CLICKED(IDC_OPEN_IMAGE, &CFacesDemoDlg::OnBnClickedOpenImage)
+	ON_BN_CLICKED(IDOK, &CFacesDemoDlg::OnBnClickedOk)
+	ON_BN_CLICKED(IDC_SAVE_IMAGE, &CFacesDemoDlg::OnBnClickedSaveImage)
+	ON_BN_CLICKED(IDC_ABOUT_US, &CFacesDemoDlg::OnBnClickedAboutUs)
+	ON_BN_CLICKED(IDC_DETECT_FACE, &CFacesDemoDlg::OnBnClickedDetectFace)
+END_MESSAGE_MAP()
+
+
+// CFacesDemoDlg 消息处理程序
+
+BOOL CFacesDemoDlg::OnInitDialog()
+{
+	CDialog::OnInitDialog();
+
+	// 将“关于...”菜单项添加到系统菜单中。
+
+	// IDM_ABOUTBOX 必须在系统命令范围内。
+	ASSERT((IDM_ABOUTBOX & 0xFFF0) == IDM_ABOUTBOX);
+	ASSERT(IDM_ABOUTBOX < 0xF000);
+
+	CMenu* pSysMenu = GetSystemMenu(FALSE);
+	if (pSysMenu != NULL)
+	{
+		CString strAboutMenu;
+		strAboutMenu.LoadString(IDS_ABOUTBOX);
+		if (!strAboutMenu.IsEmpty())
+		{
+			pSysMenu->AppendMenu(MF_SEPARATOR);
+			pSysMenu->AppendMenu(MF_STRING, IDM_ABOUTBOX, strAboutMenu);
+		}
+	}
+
+	// 设置此对话框的图标。当应用程序主窗口不是对话框时，框架将自动
+	//  执行此操作
+	SetIcon(m_hIcon, TRUE);			// 设置大图标
+	SetIcon(m_hIcon, FALSE);		// 设置小图标
+
+	ShowWindow(SW_MINIMIZE);
+
+	// TODO: 在此添加额外的初始化代码
+    CvSize imgSize;
+    imgSize.height = IMAGE_HEIGHT;
+    imgSize.width = IMAGE_WIDTH;
+	m_readImage = cvCreateImage( imgSize, IPL_DEPTH_8U, IMAGE_CHANNELS );
+
+
+	return TRUE;  // 除非将焦点设置到控件，否则返回 TRUE
+}
+
+void CFacesDemoDlg::OnSysCommand(UINT nID, LPARAM lParam)
+{
+	if ((nID & 0xFFF0) == IDM_ABOUTBOX)
+	{
+		CAboutDlg dlgAbout;
+		dlgAbout.DoModal();
+	}
+	else
+	{
+		CDialog::OnSysCommand(nID, lParam);
+	}
+}
+
+// 如果向对话框添加最小化按钮，则需要下面的代码
+//  来绘制该图标。对于使用文档/视图模型的 MFC 应用程序，
+//  这将由框架自动完成。
+
+void CFacesDemoDlg::OnPaint()
+{
+	if (IsIconic())
+	{
+		CPaintDC dc(this); // 用于绘制的设备上下文
+
+		SendMessage(WM_ICONERASEBKGND, reinterpret_cast<WPARAM>(dc.GetSafeHdc()), 0);
+
+		// 使图标在工作区矩形中居中
+		int cxIcon = GetSystemMetrics(SM_CXICON);
+		int cyIcon = GetSystemMetrics(SM_CYICON);
+		CRect rect;
+		GetClientRect(&rect);
+		int x = (rect.Width() - cxIcon + 1) / 2;
+		int y = (rect.Height() - cyIcon + 1) / 2;
+
+		// 绘制图标
+		dc.DrawIcon(x, y, m_hIcon);
+
+        CDialog::OnPaint();                    // 重绘对话框
+        CDialog::UpdateWindow();                // 更新windows窗口，如果无这步调用，图片显示还会出现问题
+        ShowImage( m_readImage, IDC_IMAGE );    // 重绘图片函数
+
+	}
+	else
+	{
+		CDialog::OnPaint();
+	}
+}
+
+//当用户拖动最小化窗口时系统调用此函数取得光标
+//显示。
+HCURSOR CFacesDemoDlg::OnQueryDragIcon()
+{
+	return static_cast<HCURSOR>(m_hIcon);
+}
+
+
+void CFacesDemoDlg::OnBnClickedOpenImage()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	/*
+	CFileDialog fileDlg(TRUE,NULL,NULL,OFN_EXPLORER|OFN_HIDEREADONLY|OFN_FILEMUSTEXIST,
+		(LPCTSTR)_T("Image Files (*.jpg;*.bmp)|*.jpg;*.bmp|All Files (*.*)|*.*||"),NULL);
+	//fileDlg.m_ofn.lpstrFilter = "Image File(*.jpg;*bmp)\0*jpg;*bmp\0All Files(*.*)\0*.*\0\0";
+	if(fileDlg.DoModal() != IDOK)
+	{
+		return;
+	}
+	{
+		CString pathName = fileDlg.GetPathName();
+		*/
+		/*
+		m_loadImage = cvLoadImage(pathName, 1);
+		if(!m_loadImage)
+		{
+			MessageBox("无法打开图像");
+		}
+		ShowImage(m_loadImage, IDC_IMAGE);
+		*/
+	/*
+		IplImage* img = cvvLoadImage(pathName);
+		ShowImage(img, IDC_IMAGE);
+		cvReleaseImage( &img ); //释放图像image 
+		MessageBox("Test");
+	}
+		*/
+
+	CFileDialog dlg(
+		TRUE, _T("*.bmp"), NULL,
+		OFN_FILEMUSTEXIST | OFN_PATHMUSTEXIST | OFN_HIDEREADONLY,
+		_T("image files (*.bmp; *.jpg) |*.bmp; *.jpg; *.jpeg | All Files (*.*) |*.*||"), NULL
+		);										// 选项图片的约定
+	dlg.m_ofn.lpstrTitle = _T("Open Image");	// 打开文件对话框的标题名
+	if( dlg.DoModal() != IDOK )					// 判断是否获得图片
+		return;
+	
+	CString mPath = dlg.GetPathName();			// 获取图片路径
+
+	IplImage* ipl = cvLoadImage( mPath, 1 );	// 读取图片、缓存到一个局部变量 ipl 中
+	if( !ipl )									// 判断是否成功读取图片
+		return;
+	if( m_readImage )								// 对上一幅显示的图片数据清零
+		cvZero( m_readImage );
+	// 使边缘检测按钮生效
+	//GetDlgItem( IDC_EdgeDetect )->EnableWindow( TRUE );
+
+	ResizeImage( ipl );	// 对读入的图片进行缩放，使其宽或高最大值者刚好等于 256，再复制到 TheImage 中
+	ShowImage( m_readImage, IDC_IMAGE );			// 调用显示图片函数	
+	cvReleaseImage( &ipl );						// 释放 ipl 占用的内存
+
+}
+
+
+void CFacesDemoDlg::ShowImage( IplImage* img, UINT ID )	// ID 是Picture Control控件的ID号
+{
+	CDC* pDC = GetDlgItem( ID ) ->GetDC();		// 获得显示控件的 DC
+	HDC hDC = pDC ->GetSafeHdc();				// 获取 HDC(设备句柄) 来进行绘图操作
+
+	CRect rect;
+	GetDlgItem(ID) ->GetClientRect( &rect );
+	int rw = rect.right - rect.left;			// 求出图片控件的宽和高
+	int rh = rect.bottom - rect.top;
+	int iw = img->width;						// 读取图片的宽和高
+	int ih = img->height;
+	int tx = (int)(rw - iw)/2;					// 使图片的显示位置正好在控件的正中
+	int ty = (int)(rh - ih)/2;
+	SetRect( rect, tx, ty, tx+iw, ty+ih );
+
+	CvvImage cimg;
+	cimg.CopyOf( img );							// 复制图片
+	cimg.DrawToHDC( hDC, &rect );				// 将图片绘制到显示控件的指定区域内
+
+	ReleaseDC( pDC );
+}
+
+void CFacesDemoDlg::ResizeImage(IplImage* img)
+{
+	// 读取图片的宽和高
+    int w = img->width;
+	int h = img->height;
+
+	// 找出宽和高中的较大值者
+	int max = (w > h)? w: h;
+
+	// 计算将图片缩放到TheImage区域所需的比例因子
+	float scale = (float) ( (float) max / 256.0f );
+	
+	// 缩放后图片的宽和高
+	int nw = (int)( w/scale );
+	int nh = (int)( h/scale );
+
+	// 为了将缩放后的图片存入 TheImage 的正中部位，需计算图片在 TheImage 左上角的期望坐标值
+	int tlx = (nw > nh)? 0: (int)(256-nw)/2;
+	int tly = (nw > nh)? (int)(256-nh)/2: 0;
+
+	// 设置 TheImage 的 ROI 区域，用来存入图片 img
+	cvSetImageROI( m_readImage, cvRect( tlx, tly, nw, nh) );
+
+	// 对图片 img 进行缩放，并存入到 TheImage 中
+	cvResize( img, m_readImage );
+
+	// 重置 TheImage 的 ROI 准备读入下一幅图片
+	cvResetImageROI( m_readImage );
+}
+
+void CFacesDemoDlg::OnBnClickedOk()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	cvDestroyAllWindows();
+	OnOK();
+}
+
+void CFacesDemoDlg::OnBnClickedSaveImage()
+{
+	// TODO: 在此添加控件通知处理程序代码
+}
+
+void CFacesDemoDlg::OnBnClickedAboutUs()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	CAboutDlg aboutDlg;
+	aboutDlg.DoModal();
+}
+
+void CFacesDemoDlg::OnBnClickedDetectFace()
+{
+	// TODO: 在此添加控件通知处理程序代码
+}
