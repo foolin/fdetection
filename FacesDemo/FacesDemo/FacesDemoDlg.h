@@ -52,4 +52,6 @@ public:
 	afx_msg void OnBnClickedDetectFace();
 
 
+	afx_msg void OnBnClickedRemoveNoise();
+	afx_msg void OnBnClickedBinaryImage();
 };
