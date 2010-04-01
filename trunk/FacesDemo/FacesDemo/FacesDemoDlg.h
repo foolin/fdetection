@@ -35,8 +35,13 @@ public:
 public:
 	void ShowImage( IplImage* img, UINT ID );
 	void ResizeImage(IplImage* img);
+	void FaceDetect( IplImage* image );
 	afx_msg void OnBnClickedOk();
 	afx_msg void OnBnClickedSaveImage();
 	afx_msg void OnBnClickedAboutUs();
 	afx_msg void OnBnClickedDetectFace();
+	CvMemStorage* m_storage;
+	CvHaarClassifierCascade* m_cascade;
+	char* m_cascadeName;
+
 };
