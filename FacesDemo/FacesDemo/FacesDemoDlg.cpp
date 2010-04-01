@@ -52,6 +52,7 @@ CFacesDemoDlg::CFacesDemoDlg(CWnd* pParent /*=NULL*/)
 	, m_storage(0)
 	, m_cascade(0)
 	, m_cascadeName(NULL)
+	, m_facesCount(0)
 {
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
 }
@@ -170,61 +171,10 @@ HCURSOR CFacesDemoDlg::OnQueryDragIcon()
 }
 
 
-void CFacesDemoDlg::OnBnClickedOpenImage()
-{
-	// TODO: ÔÚ´ËÌí¼Ó¿Ø¼şÍ¨Öª´¦Àí³ÌĞò´úÂë
-	/*
-	CFileDialog fileDlg(TRUE,NULL,NULL,OFN_EXPLORER|OFN_HIDEREADONLY|OFN_FILEMUSTEXIST,
-		(LPCTSTR)_T("Image Files (*.jpg;*.bmp)|*.jpg;*.bmp|All Files (*.*)|*.*||"),NULL);
-	//fileDlg.m_ofn.lpstrFilter = "Image File(*.jpg;*bmp)\0*jpg;*bmp\0All Files(*.*)\0*.*\0\0";
-	if(fileDlg.DoModal() != IDOK)
-	{
-		return;
-	}
-	{
-		CString pathName = fileDlg.GetPathName();
-		*/
-		/*
-		m_loadImage = cvLoadImage(pathName, 1);
-		if(!m_loadImage)
-		{
-			MessageBox("ÎŞ·¨´ò¿ªÍ¼Ïñ");
-		}
-		ShowImage(m_loadImage, IDC_IMAGE);
-		*/
-	/*
-		IplImage* img = cvvLoadImage(pathName);
-		ShowImage(img, IDC_IMAGE);
-		cvReleaseImage( &img ); //ÊÍ·ÅÍ¼Ïñimage 
-		MessageBox("Test");
-	}
-		*/
 
-	CFileDialog dlg(
-		TRUE, _T("*.bmp"), NULL,
-		OFN_FILEMUSTEXIST | OFN_PATHMUSTEXIST | OFN_HIDEREADONLY,
-		_T("image files (*.bmp; *.jpg) |*.bmp; *.jpg; *.jpeg | All Files (*.*) |*.*||"), NULL
-		);										// Ñ¡ÏîÍ¼Æ¬µÄÔ¼¶¨
-	dlg.m_ofn.lpstrTitle = _T("Open Image");	// ´ò¿ªÎÄ¼ş¶Ô»°¿òµÄ±êÌâÃû
-	if( dlg.DoModal() != IDOK )					// ÅĞ¶ÏÊÇ·ñ»ñµÃÍ¼Æ¬
-		return;
-	
-	CString mPath = dlg.GetPathName();			// »ñÈ¡Í¼Æ¬Â·¾¶
-
-	IplImage* ipl = cvLoadImage( mPath, 1 );	// ¶ÁÈ¡Í¼Æ¬¡¢»º´æµ½Ò»¸ö¾Ö²¿±äÁ¿ ipl ÖĞ
-	if( !ipl )									// ÅĞ¶ÏÊÇ·ñ³É¹¦¶ÁÈ¡Í¼Æ¬
-		return;
-	if( m_readImage )								// ¶ÔÉÏÒ»·ùÏÔÊ¾µÄÍ¼Æ¬Êı¾İÇåÁã
-		cvZero( m_readImage );
-	// Ê¹±ßÔµ¼ì²â°´Å¥ÉúĞ§
-	//GetDlgItem( IDC_EdgeDetect )->EnableWindow( TRUE );
-
-	ResizeImage( ipl );	// ¶Ô¶ÁÈëµÄÍ¼Æ¬½øĞĞËõ·Å£¬Ê¹Æä¿í»ò¸ß×î´óÖµÕß¸ÕºÃµÈÓÚ 256£¬ÔÙ¸´ÖÆµ½ TheImage ÖĞ
-	ShowImage( m_readImage, IDC_IMAGE );			// µ÷ÓÃÏÔÊ¾Í¼Æ¬º¯Êı	
-	cvReleaseImage( &ipl );						// ÊÍ·Å ipl Õ¼ÓÃµÄÄÚ´æ
-
-}
-
+/***************************************/
+/*          ´¦Àíº¯Êı                ****/
+/***************************************/
 
 void CFacesDemoDlg::ShowImage( IplImage* img, UINT ID )	// ID ÊÇPicture Control¿Ø¼şµÄIDºÅ
 {
@@ -247,6 +197,7 @@ void CFacesDemoDlg::ShowImage( IplImage* img, UINT ID )	// ID ÊÇPicture Control¿
 
 	ReleaseDC( pDC );
 }
+
 
 void CFacesDemoDlg::ResizeImage(IplImage* img)
 {
@@ -278,48 +229,6 @@ void CFacesDemoDlg::ResizeImage(IplImage* img)
 	cvResetImageROI( m_readImage );
 }
 
-void CFacesDemoDlg::OnBnClickedOk()
-{
-	// TODO: ÔÚ´ËÌí¼Ó¿Ø¼şÍ¨Öª´¦Àí³ÌĞò´úÂë
-	cvDestroyAllWindows();
-	OnOK();
-}
-
-void CFacesDemoDlg::OnBnClickedSaveImage()
-{
-	// TODO: ÔÚ´ËÌí¼Ó¿Ø¼şÍ¨Öª´¦Àí³ÌĞò´úÂë
-}
-
-void CFacesDemoDlg::OnBnClickedAboutUs()
-{
-	// TODO: ÔÚ´ËÌí¼Ó¿Ø¼şÍ¨Öª´¦Àí³ÌĞò´úÂë
-	CAboutDlg aboutDlg;
-	aboutDlg.DoModal();
-}
-
-
-/***************************************/
-/*              ÈËÁ³¼ì²â            ****/
-/***************************************/
-void CFacesDemoDlg::OnBnClickedDetectFace()
-{
-	// TODO: ÔÚ´ËÌí¼Ó¿Ø¼şÍ¨Öª´¦Àí³ÌĞò´úÂë
-	m_cascadeName = _T("E:\\OpenCV2.0\\data\\haarcascades\\haarcascade_frontalface_alt2.xml");
-	m_cascade = (CvHaarClassifierCascade*)cvLoad( m_cascadeName, 0, 0, 0 );
-    if( !m_cascade )
-    {
-        MessageBox(_T("¶Ô²»Æğ£¬ÈËÁ³¼ì²âcascadeÅäÖÃ²»ÕıÈ·"));
-        return;
-    }
-    m_storage = cvCreateMemStorage(0);
-	if( !m_readImage )
-	{
-		MessageBox(_T("ÇëÏÈ´ò¿ªÍ¼Ïñ"));
-		return;
-	}
-    //ÈËÁ³¼ì²â
-	FaceDetect(m_readImage);
-}
 
 void CFacesDemoDlg::FaceDetect( IplImage* img )
 {
@@ -355,6 +264,10 @@ void CFacesDemoDlg::FaceDetect( IplImage* img )
                                             cvSize(30, 30) );
         t = (double)cvGetTickCount() - t;
         //printf( "detection time = %gms\n", t/((double)cvGetTickFrequency()*1000.) );
+		if(faces)
+		{
+			m_facesCount = faces->total;
+		}
         for( i = 0; i < (faces ? faces->total : 0); i++ )
         {
             CvRect* r = (CvRect*)cvGetSeqElem( faces, i );
@@ -384,14 +297,93 @@ void CFacesDemoDlg::FaceDetect( IplImage* img )
 
 
             cvCircle( img, center, radius, colors[i%8], 3, 8, 0 );
-			
-
-
         }
     }
  
     //cvShowImage( "result", img );
+	// ÏÔÊ¾Í¼Ïñ
 	ShowImage(img, IDC_IMAGE);
+	//ÊÍ·ÅÍ¼Ïñ
     cvReleaseImage( &gray );
     cvReleaseImage( &small_img );
 }
+
+void CFacesDemoDlg::OnBnClickedOk()
+{
+	// TODO: ÔÚ´ËÌí¼Ó¿Ø¼şÍ¨Öª´¦Àí³ÌĞò´úÂë
+	cvDestroyAllWindows();
+	OnOK();
+}
+
+
+void CFacesDemoDlg::OnBnClickedOpenImage()
+{
+	// TODO: ÔÚ´ËÌí¼Ó¿Ø¼şÍ¨Öª´¦Àí³ÌĞò´úÂë
+	CFileDialog dlg(
+		TRUE, _T("*.bmp"), NULL,
+		OFN_FILEMUSTEXIST | OFN_PATHMUSTEXIST | OFN_HIDEREADONLY,
+		_T("image files (*.bmp; *.jpg) |*.bmp; *.jpg; *.jpeg | All Files (*.*) |*.*||"), NULL
+		);										// Ñ¡ÏîÍ¼Æ¬µÄÔ¼¶¨
+	dlg.m_ofn.lpstrTitle = _T("Open Image");	// ´ò¿ªÎÄ¼ş¶Ô»°¿òµÄ±êÌâÃû
+	if( dlg.DoModal() != IDOK )					// ÅĞ¶ÏÊÇ·ñ»ñµÃÍ¼Æ¬
+		return;
+	
+	CString mPath = dlg.GetPathName();			// »ñÈ¡Í¼Æ¬Â·¾¶
+
+	IplImage* ipl = cvLoadImage( mPath, 1 );	// ¶ÁÈ¡Í¼Æ¬¡¢»º´æµ½Ò»¸ö¾Ö²¿±äÁ¿ ipl ÖĞ
+	if( !ipl )									// ÅĞ¶ÏÊÇ·ñ³É¹¦¶ÁÈ¡Í¼Æ¬
+		return;
+	if( m_readImage )								// ¶ÔÉÏÒ»·ùÏÔÊ¾µÄÍ¼Æ¬Êı¾İÇåÁã
+		cvZero( m_readImage );
+	// Ê¹±ßÔµ¼ì²â°´Å¥ÉúĞ§
+	//GetDlgItem( IDC_EdgeDetect )->EnableWindow( TRUE );
+
+	ResizeImage( ipl );	// ¶Ô¶ÁÈëµÄÍ¼Æ¬½øĞĞËõ·Å£¬Ê¹Æä¿í»ò¸ß×î´óÖµÕß¸ÕºÃµÈÓÚ 256£¬ÔÙ¸´ÖÆµ½ TheImage ÖĞ
+	ShowImage( m_readImage, IDC_IMAGE );			// µ÷ÓÃÏÔÊ¾Í¼Æ¬º¯Êı	
+	cvReleaseImage( &ipl );						// ÊÍ·Å ipl Õ¼ÓÃµÄÄÚ´æ
+
+}
+
+
+
+void CFacesDemoDlg::OnBnClickedSaveImage()
+{
+	// TODO: ÔÚ´ËÌí¼Ó¿Ø¼şÍ¨Öª´¦Àí³ÌĞò´úÂë
+}
+
+void CFacesDemoDlg::OnBnClickedAboutUs()
+{
+	// TODO: ÔÚ´ËÌí¼Ó¿Ø¼şÍ¨Öª´¦Àí³ÌĞò´úÂë
+	CAboutDlg aboutDlg;
+	aboutDlg.DoModal();
+}
+
+
+/***************************************/
+/*              ÈËÁ³¼ì²â            ****/
+/***************************************/
+void CFacesDemoDlg::OnBnClickedDetectFace()
+{
+	// TODO: ÔÚ´ËÌí¼Ó¿Ø¼şÍ¨Öª´¦Àí³ÌĞò´úÂë
+	m_cascadeName = _T("E:\\OpenCV2.0\\data\\haarcascades\\haarcascade_frontalface_alt2.xml");
+	m_cascade = (CvHaarClassifierCascade*)cvLoad( m_cascadeName, 0, 0, 0 );
+    if( !m_cascade )
+    {
+        MessageBox(_T("¶Ô²»Æğ£¬ÈËÁ³¼ì²âcascadeÅäÖÃ²»ÕıÈ·"));
+        return;
+    }
+    m_storage = cvCreateMemStorage(0);
+	if( !m_readImage )
+	{
+		MessageBox(_T("ÇëÏÈ´ò¿ªÍ¼Ïñ"));
+		return;
+	}
+
+    //ÈËÁ³¼ì²â
+	FaceDetect(m_readImage);
+	
+	CString strTips;
+	strTips.Format("Í¼Ïñ´¦ÀíÍê±Ï£¡¹²¼ì²âµ½%dÕÅÈËÁ³£¡", m_facesCount);
+	MessageBox(_T(strTips));
+}
+

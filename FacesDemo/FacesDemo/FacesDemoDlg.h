@@ -28,20 +28,28 @@ protected:
 	afx_msg void OnPaint();
 	afx_msg HCURSOR OnQueryDragIcon();
 	DECLARE_MESSAGE_MAP()
-public:
-	afx_msg void OnBnClickedOpenImage();
-	IplImage* m_readImage;
 
+//公有成员
+public:
+	IplImage* m_readImage;
+	CvMemStorage* m_storage;
+	CvHaarClassifierCascade* m_cascade;
+	char* m_cascadeName;
+	int m_facesCount;
+
+//共有函数
 public:
 	void ShowImage( IplImage* img, UINT ID );
 	void ResizeImage(IplImage* img);
 	void FaceDetect( IplImage* image );
+
+///消息映射
+public:
+	afx_msg void OnBnClickedOpenImage();
 	afx_msg void OnBnClickedOk();
 	afx_msg void OnBnClickedSaveImage();
 	afx_msg void OnBnClickedAboutUs();
 	afx_msg void OnBnClickedDetectFace();
-	CvMemStorage* m_storage;
-	CvHaarClassifierCascade* m_cascade;
-	char* m_cascadeName;
+
 
 };
