@@ -72,6 +72,8 @@ BEGIN_MESSAGE_MAP(CFacesDemoDlg, CDialog)
 	ON_BN_CLICKED(IDC_SAVE_IMAGE, &CFacesDemoDlg::OnBnClickedSaveImage)
 	ON_BN_CLICKED(IDC_ABOUT_US, &CFacesDemoDlg::OnBnClickedAboutUs)
 	ON_BN_CLICKED(IDC_DETECT_FACE, &CFacesDemoDlg::OnBnClickedDetectFace)
+	ON_BN_CLICKED(IDC_REMOVE_NOISE, &CFacesDemoDlg::OnBnClickedRemoveNoise)
+	ON_BN_CLICKED(IDC_BINARY_IMAGE, &CFacesDemoDlg::OnBnClickedBinaryImage)
 END_MESSAGE_MAP()
 
 
@@ -104,7 +106,8 @@ BOOL CFacesDemoDlg::OnInitDialog()
 	SetIcon(m_hIcon, TRUE);			// 设置大图标
 	SetIcon(m_hIcon, FALSE);		// 设置小图标
 
-	ShowWindow(SW_MINIMIZE);
+	//ShowWindow(SW_MINIMIZE);
+	//ShowWindow(SW_SHOWNORMAL); 
 
 	// TODO: 在此添加额外的初始化代码
     CvSize imgSize;
@@ -112,6 +115,13 @@ BOOL CFacesDemoDlg::OnInitDialog()
     imgSize.width = IMAGE_WIDTH;
 	m_readImage = cvCreateImage( imgSize, IPL_DEPTH_8U, IMAGE_CHANNELS );
 	m_cascadeName = "shaarcascade_frontalface_alt2.xml";
+
+
+	//使人脸检测等按钮失效
+	GetDlgItem( IDC_SAVE_IMAGE )->EnableWindow( FALSE );
+	GetDlgItem( IDC_DETECT_FACE )->EnableWindow( FALSE );
+	GetDlgItem( IDC_REMOVE_NOISE )->EnableWindow( FALSE );
+	GetDlgItem( IDC_BINARY_IMAGE )->EnableWindow( FALSE );
 
 	return TRUE;  // 除非将焦点设置到控件，否则返回 TRUE
 }
@@ -339,27 +349,26 @@ void CFacesDemoDlg::OnBnClickedOpenImage()
 		return;
 	if( m_readImage )								// 对上一幅显示的图片数据清零
 		cvZero( m_readImage );
-	// 使边缘检测按钮生效
-	//GetDlgItem( IDC_EdgeDetect )->EnableWindow( TRUE );
-
 	ResizeImage( ipl );	// 对读入的图片进行缩放，使其宽或高最大值者刚好等于 256，再复制到 TheImage 中
 	ShowImage( m_readImage, IDC_IMAGE );			// 调用显示图片函数	
 	cvReleaseImage( &ipl );						// 释放 ipl 占用的内存
 
+	// 使边缘检测按钮生效
+	GetDlgItem( IDC_DETECT_FACE )->EnableWindow( TRUE );
+
 }
 
 
-
+//保存图片
 void CFacesDemoDlg::OnBnClickedSaveImage()
 {
 	// TODO: 在此添加控件通知处理程序代码
 }
 
+//关于对话框
 void CFacesDemoDlg::OnBnClickedAboutUs()
 {
 	// TODO: 在此添加控件通知处理程序代码
-	CAboutDlg aboutDlg;
-	aboutDlg.DoModal();
 }
 
 
@@ -391,3 +400,14 @@ void CFacesDemoDlg::OnBnClickedDetectFace()
 	MessageBox(_T(strTips));
 }
 
+//消除噪声
+void CFacesDemoDlg::OnBnClickedRemoveNoise()
+{
+	// TODO: 在此添加控件通知处理程序代码
+}
+
+//二值化
+void CFacesDemoDlg::OnBnClickedBinaryImage()
+{
+	// TODO: 在此添加控件通知处理程序代码
+}
