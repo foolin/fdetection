@@ -34,11 +34,13 @@ public:
 	IplImage* m_readImage;
 	CvMemStorage* m_storage;
 	CvHaarClassifierCascade* m_cascade;
-	char* m_cascadeName;
+	//char* m_cascadeName;
+	CString m_cascadeName;
 	int m_facesCount;
 
 //¹²ÓÐº¯Êý
 public:
+	void InitConfig();
 	void ShowImage( IplImage* img, UINT ID );
 	void ResizeImage(IplImage* img);
 	void FaceDetect( IplImage* image );
