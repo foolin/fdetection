@@ -51,7 +51,7 @@ CFacesDemoDlg::CFacesDemoDlg(CWnd* pParent /*=NULL*/)
 	, m_readImage(NULL)
 	, m_storage(0)
 	, m_cascade(0)
-	, m_cascadeName(NULL)
+	, m_cascadeName(_T(""))
 	, m_facesCount(0)
 {
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
@@ -106,22 +106,57 @@ BOOL CFacesDemoDlg::OnInitDialog()
 	SetIcon(m_hIcon, TRUE);			// 设置大图标
 	SetIcon(m_hIcon, FALSE);		// 设置小图标
 
+
 	//ShowWindow(SW_MINIMIZE);
 	//ShowWindow(SW_SHOWNORMAL); 
 
 	// TODO: 在此添加额外的初始化代码
+
     CvSize imgSize;
     imgSize.height = IMAGE_HEIGHT;
     imgSize.width = IMAGE_WIDTH;
 	m_readImage = cvCreateImage( imgSize, IPL_DEPTH_8U, IMAGE_CHANNELS );
-	m_cascadeName = "shaarcascade_frontalface_alt2.xml";
 
+
+	/*
+	//读取配置文件
+	CString strCascadeName;
+	::GetPrivateProfileStringA("Init","CascadeName","-1", 
+							strCascadeName.GetBuffer(MAX_PATH),
+							MAX_PATH ,
+							".\\config.ini"); 
+	if(strCascadeName == "-1")
+	{
+		CString strPath;
+		GetCurrentDirectory(MAX_PATH,strPath.GetBuffer(MAX_PATH));
+		strPath.ReleaseBuffer();
+		m_cascadeName = strPath + "\\haarcascade_frontalface_alt2.xml";
+		::WritePrivateProfileString("Init","CascadeName", m_cascadeName,".\\config.ini");
+		//MessageBox("配置不正确！");
+	}
+	else
+	{
+		m_cascadeName = strCascadeName;
+		//MessageBox("配置正确！");
+	}
+	*/
+
+	/*
+	if(::WritePrivateProfileString("Init","CascadeName", m_cascadeName,".\\student.ini"))
+	{
+		MessageBox("写入成功");
+	}
+	*/
+
+	
 
 	//使人脸检测等按钮失效
 	GetDlgItem( IDC_SAVE_IMAGE )->EnableWindow( FALSE );
 	GetDlgItem( IDC_DETECT_FACE )->EnableWindow( FALSE );
 	GetDlgItem( IDC_REMOVE_NOISE )->EnableWindow( FALSE );
 	GetDlgItem( IDC_BINARY_IMAGE )->EnableWindow( FALSE );
+
+	InitConfig();	//初始化配置文件
 
 
 	return TRUE;  // 除非将焦点设置到控件，否则返回 TRUE
@@ -190,6 +225,40 @@ HCURSOR CFacesDemoDlg::OnQueryDragIcon()
 /***************************************/
 /*          处理函数                ****/
 /***************************************/
+
+void CFacesDemoDlg::InitConfig()
+{
+	//读取配置文件
+	CString strCascadeName;
+	::GetPrivateProfileStringA("Init","CascadeName","-1", 
+							strCascadeName.GetBuffer(MAX_PATH),
+							MAX_PATH ,
+							".\\config.ini"); 
+	if(strCascadeName == "-1")
+	{
+		CString strPath;
+		GetCurrentDirectory(MAX_PATH,strPath.GetBuffer(MAX_PATH));
+		strPath.ReleaseBuffer();
+		m_cascadeName = strPath + "\\haarcascade_frontalface_alt2.xml";
+		::WritePrivateProfileString("Init","CascadeName", m_cascadeName,".\\config.ini");
+		//MessageBox("配置不正确！");
+	}
+	else
+	{
+		m_cascadeName = strCascadeName;
+		//MessageBox("配置正确！");
+	}
+
+	/*
+	if(::WritePrivateProfileString("Init","CascadeName", m_cascadeName,".\\student.ini"))
+	{
+		MessageBox("写入成功");
+	}
+	*/
+
+
+}
+
 
 void CFacesDemoDlg::ShowImage( IplImage* img, UINT ID )	// ID 是Picture Control控件的ID号
 {
@@ -395,6 +464,7 @@ void CFacesDemoDlg::OnBnClickedAboutUs()
 	*/
 	CAboutDlg aboutDlg;
 	aboutDlg.DoModal();
+
 	
 }
 
@@ -405,11 +475,13 @@ void CFacesDemoDlg::OnBnClickedAboutUs()
 void CFacesDemoDlg::OnBnClickedDetectFace()
 {
 	// TODO: 在此添加控件通知处理程序代码
-	m_cascadeName = _T("E:\\OpenCV2.0\\data\\haarcascades\\haarcascade_frontalface_alt2.xml");
+	//m_cascadeName = _T("E:\\OpenCV2.0\\data\\haarcascades\\haarcascade_frontalface_alt2.xml");
+	//MessageBox(m_cascadeName);
+	//m_cascadeName = "haarcascade_frontalface_alt2.xml";
 	m_cascade = (CvHaarClassifierCascade*)cvLoad( m_cascadeName, 0, 0, 0 );
     if( !m_cascade )
     {
-        MessageBox(_T("对不起，人脸检测cascade配置不正确"));
+        MessageBox(_T("对不起，人脸检测cascade配置不正确"+m_cascadeName));
         return;
     }
     m_storage = cvCreateMemStorage(0);
