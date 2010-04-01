@@ -159,7 +159,11 @@ void CFacesDemoDlg::OnPaint()
 	}
 	else
 	{
-		CDialog::OnPaint();
+		CDialog::OnPaint();						// 重绘对话框
+
+		CDialog::UpdateWindow();				// 更新windows窗口，如果无这步调用，图片显示还会出现问题
+		ShowImage( m_readImage, IDC_IMAGE );		// 重绘图片函数
+
 	}
 }
 
