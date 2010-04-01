@@ -3,3 +3,6 @@ http://blog.csdn.net/chenyusiyuan/archive/2009/10/29/4744097.aspx
 
 OpenCV如何把图像显示到MFC的picture控件上
 http://www.aiseminar.cn/bbs/thread-335-1-1.html
+
+OpenCV研讨
+http://www.aiseminar.cn/bbs/forum-70-1.html
