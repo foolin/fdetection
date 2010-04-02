@@ -49,6 +49,7 @@ END_MESSAGE_MAP()
 CFacesDemoDlg::CFacesDemoDlg(CWnd* pParent /*=NULL*/)
 	: CDialog(CFacesDemoDlg::IDD, pParent)
 	, m_readImage(NULL)
+	, m_showImage(NULL)
 	, m_storage(0)
 	, m_cascade(0)
 	, m_cascadeName(_T(""))
@@ -115,7 +116,7 @@ BOOL CFacesDemoDlg::OnInitDialog()
     CvSize imgSize;
     imgSize.height = IMAGE_HEIGHT;
     imgSize.width = IMAGE_WIDTH;
-	m_readImage = cvCreateImage( imgSize, IPL_DEPTH_8U, IMAGE_CHANNELS );
+	m_showImage = cvCreateImage( imgSize, IPL_DEPTH_8U, IMAGE_CHANNELS );
 
 
 	/*
@@ -200,7 +201,7 @@ void CFacesDemoDlg::OnPaint()
 
         CDialog::OnPaint();                    // 重绘对话框
         CDialog::UpdateWindow();                // 更新windows窗口，如果无这步调用，图片显示还会出现问题
-        ShowImage( m_readImage, IDC_IMAGE );    // 重绘图片函数
+        ShowImage( m_showImage, IDC_IMAGE );    // 重绘图片函数
 
 	}
 	else
@@ -208,7 +209,7 @@ void CFacesDemoDlg::OnPaint()
 		CDialog::OnPaint();						// 重绘对话框
 
 		CDialog::UpdateWindow();				// 更新windows窗口，如果无这步调用，图片显示还会出现问题
-		ShowImage( m_readImage, IDC_IMAGE );		// 重绘图片函数
+		ShowImage( m_showImage, IDC_IMAGE );		// 重绘图片函数
 
 	}
 }
@@ -259,6 +260,17 @@ void CFacesDemoDlg::InitConfig()
 
 }
 
+void CFacesDemoDlg::ShowImage( IplImage* srcImage)	//显示图像，包括缩小图像
+{
+//	IplImage* img = cvCreateImage( cvGetSize( srcImage), srcImage->depth, srcImage->nChannels);
+//	cvCopy( srcImage, img, NULL);
+//	ResizeImage(img);	//图片进行缩放
+	ResizeImage(srcImage);	//图片进行缩放
+	ShowImage( m_showImage, IDC_IMAGE );			// 调用显示图片函数	
+//	cvReleaseImage( &img);
+
+}
+
 
 void CFacesDemoDlg::ShowImage( IplImage* img, UINT ID )	// ID 是Picture Control控件的ID号
 {
@@ -304,13 +316,95 @@ void CFacesDemoDlg::ResizeImage(IplImage* img)
 	int tly = (nw > nh)? (int)(256-nh)/2: 0;
 
 	// 设置 TheImage 的 ROI 区域，用来存入图片 img
-	cvSetImageROI( m_readImage, cvRect( tlx, tly, nw, nh) );
+	cvSetImageROI( m_showImage, cvRect( tlx, tly, nw, nh) );
 
 	// 对图片 img 进行缩放，并存入到 TheImage 中
-	cvResize( img, m_readImage );
+	cvResize( img, m_showImage );
 
 	// 重置 TheImage 的 ROI 准备读入下一幅图片
-	cvResetImageROI( m_readImage );
+	cvResetImageROI( m_showImage );
+}
+
+
+/*** 设置图片大小 ***/
+void CFacesDemoDlg::SetReadImage( IplImage* image, int maxWidth, int maxHeight)	//设置图片大小
+{
+	if(!image)
+	{
+		return;
+	}
+
+	//复制图像到srcImage,并清空image
+	//IplImage *srcImage;		//原图像
+	//IplImage *dstImage;		//目标图像
+	//srcImage = cvCreateImage(cvGetSize(image), image->depth, image->nChannels);
+	//cvCopy( image, srcImage, NULL);
+	IplImage *tempImage;		//目标图像
+
+	double scale = 0.5;		//缩放倍数为0.5倍
+	//double scaleW = (double) IMAGE_MAX_WIDTH / srcImage->width;		//默认
+	//double scaleH = (double) IMAGE_MAX_HEIGHT / srcImage->height;		//默认
+	double scaleW = (double) IMAGE_MAX_WIDTH / image->width;		//默认
+	double scaleH = (double) IMAGE_MAX_HEIGHT / image->height;		//默认
+	CvSize tempSize;			//缩放图像的大小
+	
+	//求缩放率
+	if(maxWidth > 0 && maxHeight > 0)
+	{
+		scaleW = (double) maxWidth / image->width;
+		scaleH = (double) maxHeight / image->height;
+		scale = scaleW < scaleH ? scaleW : scaleH;
+	}
+	else if(maxWidth > 0)
+	{
+		scale = (double) maxWidth / image->width;
+	}
+	else if(maxHeight > 0)
+	{
+		scale =  (double) maxWidth / image->width;
+	}
+	else
+	{
+		scale = scaleW < scaleH ? scaleW : scaleH;
+	}
+	
+	//如果图片已经够小，则不用缩小
+	if ( scale >= 1 )
+	{
+		if(m_readImage)
+		{
+			cvZero( m_readImage );	//清空图像
+		}
+		//保留原图像
+		m_readImage = cvCreateImage( cvGetSize(image), image->depth, image->nChannels);	//构造目标图象
+		cvCopy( image, m_readImage, NULL);
+		return;
+	}
+
+	//求缩放宽度和高度
+	tempSize.width = (int) image->width * scale;
+	tempSize.height = (int) image->height * scale;
+	//缩小图片
+	tempImage = cvCreateImage( tempSize, image->depth, image->nChannels);	//构造目标图象
+	cvResize(image, tempImage, CV_INTER_LINEAR);	//缩放源图像到目标图像
+
+	//缩放图像并赋值给image
+	/*
+	cvZero( image );	//清空图像
+    image = cvCreateImage( dstSize, dstImage->depth, dstImage->nChannels);	//构造目标图象
+    cvCopy(dstImage, image, NULL);
+	*/
+	if(m_readImage)
+	{
+		cvZero( m_readImage );	//清空图像
+	}
+    m_readImage = cvCreateImage( tempSize, tempImage->depth, tempImage->nChannels);	//构造目标图象
+    cvCopy(tempImage, m_readImage, NULL);
+
+	//释放临时原图像
+	//cvReleaseImage( &srcImage);
+	cvReleaseImage( &tempImage);
+
 }
 
 
@@ -384,9 +478,11 @@ void CFacesDemoDlg::FaceDetect( IplImage* img )
         }
     }
  
-    //cvShowImage( "result", img );
+
 	// 显示图像
-	ShowImage(img, IDC_IMAGE);
+	//ShowImage(img, IDC_IMAGE);
+	//ShowImage(img);
+
 	//释放图像
     cvReleaseImage( &gray );
     cvReleaseImage( &small_img );
@@ -414,14 +510,26 @@ void CFacesDemoDlg::OnBnClickedOpenImage()
 	
 	CString mPath = dlg.GetPathName();			// 获取图片路径
 
-	IplImage* ipl = cvLoadImage( mPath, 1 );	// 读取图片、缓存到一个局部变量 ipl 中
-	if( !ipl )									// 判断是否成功读取图片
+	IplImage* srcImage = cvLoadImage( mPath, 1 );	// 读取图片、缓存到一个局部变量 ipl 中
+	if( !srcImage )									// 判断是否成功读取图片
 		return;
+/*
 	if( m_readImage )								// 对上一幅显示的图片数据清零
 		cvZero( m_readImage );
-	ResizeImage( ipl );	// 对读入的图片进行缩放，使其宽或高最大值者刚好等于 256，再复制到 TheImage 中
-	ShowImage( m_readImage, IDC_IMAGE );			// 调用显示图片函数	
-	cvReleaseImage( &ipl );						// 释放 ipl 占用的内存
+	m_readImage = cvCreateImage( cvGetSize( srcImage), srcImage->depth, srcImage->nChannels);
+	cvCopy( srcImage, m_readImage, NULL);
+	*/
+	SetReadImage( srcImage, 800, 600 );	//保存变量
+
+
+	if( m_showImage )								// 对上一幅显示的图片数据清零
+		cvZero( m_showImage );
+	/*
+	ResizeImage( srcImage );	// 对读入的图片进行缩放，使其宽或高最大值者刚好等于 256，再复制到 TheImage 中
+	ShowImage( m_showImage, IDC_IMAGE );			// 调用显示图片函数	
+	*/
+	ShowImage( srcImage);
+	cvReleaseImage( &srcImage );						// 释放 ipl 占用的内存
 
 	// 使边缘检测按钮生效
 	GetDlgItem( IDC_DETECT_FACE )->EnableWindow( TRUE );
@@ -454,14 +562,6 @@ void CFacesDemoDlg::OnBnClickedSaveImage()
 void CFacesDemoDlg::OnBnClickedAboutUs()
 {
 	// TODO: 在此添加控件通知处理程序代码
-	/*
-	CString strAbout;
-	strAbout = "人脸检测 V1.0\n";
-	strAbout = strAbout + "Version:  1.0.0\n";
-	strAbout = strAbout + "Author :  Foolin\n";
-	strAbout = strAbout + "E-mail :  Foolin55@gmail.com\n";
-	MessageBox(strAbout);
-	*/
 	CAboutDlg aboutDlg;
 	aboutDlg.DoModal();
 
@@ -493,6 +593,7 @@ void CFacesDemoDlg::OnBnClickedDetectFace()
 
     //人脸检测
 	FaceDetect(m_readImage);
+	ShowImage(m_readImage);
 	
 	CString strTips;
 	if (m_facesCount > 0)

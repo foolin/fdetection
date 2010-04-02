@@ -32,6 +32,7 @@ protected:
 //公有成员
 public:
 	IplImage* m_readImage;
+	IplImage* m_showImage;
 	CvMemStorage* m_storage;
 	CvHaarClassifierCascade* m_cascade;
 	//char* m_cascadeName;
@@ -41,9 +42,11 @@ public:
 //共有函数
 public:
 	void InitConfig();
-	void ShowImage( IplImage* img, UINT ID );
 	void ResizeImage(IplImage* img);
+	void ShowImage( IplImage* img, UINT ID );
+	void ShowImage( IplImage* srcImage);	//显示图像，包括缩小
 	void FaceDetect( IplImage* image );
+	void SetReadImage( IplImage* image, int width=0, int height=0 );	//设置图片大小并保存到m_readImage
 
 ///消息映射
 public:
