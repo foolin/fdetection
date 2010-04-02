@@ -97,7 +97,6 @@ EXSTYLE WS_EX_APPWINDOW
 CAPTION "人脸的定位与分割 V1.0.0 Powered by Foolin"
 FONT 9, "MS Shell Dlg", 0, 0, 0x1
 BEGIN
-    PUSHBUTTON      "退出",IDCANCEL,215,175,50,14
     CONTROL         "",IDC_IMAGE,"Static",SS_BLACKFRAME,16,22,160,160
     PUSHBUTTON      "打开图像",IDC_OPEN_IMAGE,210,19,50,14
     PUSHBUTTON      "人脸检测",IDC_DETECT_FACE,211,76,50,14
@@ -110,6 +109,7 @@ BEGIN
     CTEXT           "门禁系统中陌生人脸的识别--",IDC_STATIC,17,7,88,8
     LTEXT           "《人脸的定位和分割》",IDC_STATIC,107,7,70,8
     PUSHBUTTON      "关于",IDC_ABOUT_US,215,154,50,14
+    PUSHBUTTON      "最小化到托盘",IDC_MINIMIZE,215,175,50,14
 END
 
 
