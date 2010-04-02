@@ -303,24 +303,29 @@ void CFacesDemoDlg::ResizeImage(IplImage* img)
 
 	// 找出宽和高中的较大值者
 	int max = (w > h)? w: h;
+	int maxDef = (IMAGE_WIDTH > IMAGE_HEIGHT)? IMAGE_WIDTH : IMAGE_HEIGHT;
 
-	// 计算将图片缩放到TheImage区域所需的比例因子
-	float scale = (float) ( (float) max / 256.0f );
+	// 计算将图片缩放到m_showImage区域所需的比例因子
+	float scale = (float) ( (float) max / maxDef);
 	
 	// 缩放后图片的宽和高
 	int nw = (int)( w/scale );
 	int nh = (int)( h/scale );
 
-	// 为了将缩放后的图片存入 TheImage 的正中部位，需计算图片在 TheImage 左上角的期望坐标值
-	int tlx = (nw > nh)? 0: (int)(256-nw)/2;
-	int tly = (nw > nh)? (int)(256-nh)/2: 0;
+	// 为了将缩放后的图片存入 m_showImage 的正中部位，需计算图片在 m_showImage 左上角的期望坐标值
+	int tlx = (nw > nh)? 0: (int)(IMAGE_WIDTH - nw) / 2;
+	int tly = (nw > nh)? (int)(IMAGE_HEIGHT - nh) / 2 : 0;
+
+	// 对上一幅显示的图片数据清零
+	if( m_showImage )
+	{
+		cvZero( m_showImage );
+	}
 
 	// 设置 TheImage 的 ROI 区域，用来存入图片 img
 	cvSetImageROI( m_showImage, cvRect( tlx, tly, nw, nh) );
-
-	// 对图片 img 进行缩放，并存入到 TheImage 中
+	// 对图片 img 进行缩放，并存入到 m_showImage 中
 	cvResize( img, m_showImage );
-
 	// 重置 TheImage 的 ROI 准备读入下一幅图片
 	cvResetImageROI( m_showImage );
 }
@@ -329,18 +334,14 @@ void CFacesDemoDlg::ResizeImage(IplImage* img)
 /*** 设置图片大小 ***/
 void CFacesDemoDlg::SetReadImage( IplImage* image, int maxWidth, int maxHeight)	//设置图片大小
 {
+	//检测是否存在图片
 	if(!image)
 	{
 		return;
 	}
 
-	//复制图像到srcImage,并清空image
-	//IplImage *srcImage;		//原图像
-	//IplImage *dstImage;		//目标图像
-	//srcImage = cvCreateImage(cvGetSize(image), image->depth, image->nChannels);
-	//cvCopy( image, srcImage, NULL);
+	//声明相关变量
 	IplImage *tempImage;		//目标图像
-
 	double scale = 0.5;		//缩放倍数为0.5倍
 	//double scaleW = (double) IMAGE_MAX_WIDTH / srcImage->width;		//默认
 	//double scaleH = (double) IMAGE_MAX_HEIGHT / srcImage->height;		//默认
@@ -384,16 +385,12 @@ void CFacesDemoDlg::SetReadImage( IplImage* image, int maxWidth, int maxHeight)	
 	//求缩放宽度和高度
 	tempSize.width = (int) image->width * scale;
 	tempSize.height = (int) image->height * scale;
+
 	//缩小图片
 	tempImage = cvCreateImage( tempSize, image->depth, image->nChannels);	//构造目标图象
 	cvResize(image, tempImage, CV_INTER_LINEAR);	//缩放源图像到目标图像
 
 	//缩放图像并赋值给image
-	/*
-	cvZero( image );	//清空图像
-    image = cvCreateImage( dstSize, dstImage->depth, dstImage->nChannels);	//构造目标图象
-    cvCopy(dstImage, image, NULL);
-	*/
 	if(m_readImage)
 	{
 		cvZero( m_readImage );	//清空图像
@@ -402,7 +399,6 @@ void CFacesDemoDlg::SetReadImage( IplImage* image, int maxWidth, int maxHeight)	
     cvCopy(tempImage, m_readImage, NULL);
 
 	//释放临时原图像
-	//cvReleaseImage( &srcImage);
 	cvReleaseImage( &tempImage);
 
 }
@@ -499,37 +495,35 @@ void CFacesDemoDlg::OnBnClickedOk()
 void CFacesDemoDlg::OnBnClickedOpenImage()
 {
 	// TODO: 在此添加控件通知处理程序代码
-	CFileDialog dlg(
-		TRUE, _T("*.bmp"), NULL,
-		OFN_FILEMUSTEXIST | OFN_PATHMUSTEXIST | OFN_HIDEREADONLY,
-		_T("image files (*.bmp; *.jpg) |*.bmp; *.jpg; *.jpeg | All Files (*.*) |*.*||"), NULL
-		);										// 选项图片的约定
+	CFileDialog dlg( TRUE, _T("*.bmp"), NULL,
+					OFN_FILEMUSTEXIST | OFN_PATHMUSTEXIST | OFN_HIDEREADONLY,
+					_T("image files (*.bmp; *.jpg) |*.bmp; *.jpg; *.jpeg | All Files (*.*) |*.*||"),
+					NULL );										// 选项图片的约定
 	dlg.m_ofn.lpstrTitle = _T("打开图片");	// 打开文件对话框的标题名
-	if( dlg.DoModal() != IDOK )					// 判断是否获得图片
+	if( dlg.DoModal() != IDOK )				// 判断是否获得图片
+	{
 		return;
+	}
 	
 	CString mPath = dlg.GetPathName();			// 获取图片路径
+	IplImage* srcImage = cvLoadImage( mPath, 1 );	// 读取图片、缓存到一个局部变量 srcImage 中
 
-	IplImage* srcImage = cvLoadImage( mPath, 1 );	// 读取图片、缓存到一个局部变量 ipl 中
 	if( !srcImage )									// 判断是否成功读取图片
+	{
 		return;
-/*
-	if( m_readImage )								// 对上一幅显示的图片数据清零
-		cvZero( m_readImage );
-	m_readImage = cvCreateImage( cvGetSize( srcImage), srcImage->depth, srcImage->nChannels);
-	cvCopy( srcImage, m_readImage, NULL);
-	*/
+	}
+
 	SetReadImage( srcImage, 800, 600 );	//保存变量
 
 
-	if( m_showImage )								// 对上一幅显示的图片数据清零
-		cvZero( m_showImage );
+	//if( m_showImage )								// 对上一幅显示的图片数据清零
+		//cvZero( m_showImage );
 	/*
 	ResizeImage( srcImage );	// 对读入的图片进行缩放，使其宽或高最大值者刚好等于 256，再复制到 TheImage 中
 	ShowImage( m_showImage, IDC_IMAGE );			// 调用显示图片函数	
 	*/
-	ShowImage( srcImage);
-	cvReleaseImage( &srcImage );						// 释放 ipl 占用的内存
+	ShowImage( srcImage );			//显示图像
+	cvReleaseImage( &srcImage );	// 释放占用的内存
 
 	// 使边缘检测按钮生效
 	GetDlgItem( IDC_DETECT_FACE )->EnableWindow( TRUE );
