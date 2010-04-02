@@ -55,8 +55,9 @@ public:
 	afx_msg void OnBnClickedSaveImage();
 	afx_msg void OnBnClickedAboutUs();
 	afx_msg void OnBnClickedDetectFace();
-
-
 	afx_msg void OnBnClickedRemoveNoise();
 	afx_msg void OnBnClickedBinaryImage();
+	afx_msg void OnBnClickedMinimize();
+	afx_msg LRESULT OnWindMinimize(WPARAM wParam,LPARAM lParam);	//最小化消息响应
+	bool TrayMessage(DWORD dwFlag, UINT uIconId=IDR_MAINFRAME);		//最小化托盘响应函数
 };

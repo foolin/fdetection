@@ -9,6 +9,8 @@
 #define new DEBUG_NEW
 #endif
 
+#define WM_MY_WIND_MINIMIZE (WM_USER + 1)	//自定义消息，最小化窗口
+
 
 // 用于应用程序“关于”菜单项的 CAboutDlg 对话框
 
@@ -75,6 +77,8 @@ BEGIN_MESSAGE_MAP(CFacesDemoDlg, CDialog)
 	ON_BN_CLICKED(IDC_DETECT_FACE, &CFacesDemoDlg::OnBnClickedDetectFace)
 	ON_BN_CLICKED(IDC_REMOVE_NOISE, &CFacesDemoDlg::OnBnClickedRemoveNoise)
 	ON_BN_CLICKED(IDC_BINARY_IMAGE, &CFacesDemoDlg::OnBnClickedBinaryImage)
+	ON_BN_CLICKED(IDC_MINIMIZE, &CFacesDemoDlg::OnBnClickedMinimize)
+	ON_MESSAGE(WM_MY_WIND_MINIMIZE, OnWindMinimize)
 END_MESSAGE_MAP()
 
 
@@ -611,4 +615,67 @@ void CFacesDemoDlg::OnBnClickedRemoveNoise()
 void CFacesDemoDlg::OnBnClickedBinaryImage()
 {
 	// TODO: 在此添加控件通知处理程序代码
+}
+
+void CFacesDemoDlg::OnBnClickedMinimize()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	TrayMessage(NIM_ADD);	//最小化
+	ShowWindow(SW_HIDE);	//隐藏主窗口 
+}
+
+LRESULT CFacesDemoDlg::OnWindMinimize(WPARAM wParam,LPARAM lParam) 
+//wParam接收的是图标的ID，而lParam接收的是鼠标的行为 
+{ 
+	if(wParam!=IDR_MAINFRAME) 
+		return 1; 
+	switch(lParam) 
+	{ 
+		case WM_RBUTTONUP://右键起来时弹出快捷菜单，这里只有一个“关闭” 
+		{
+			LPPOINT lpoint = new tagPOINT; 
+			::GetCursorPos(lpoint);//得到鼠标位置 
+			CMenu menu; 
+			menu.CreatePopupMenu();//声明一个弹出式菜单 
+			//增加菜单项“关闭”，点击则发送消息WM_DESTROY给主窗口（已 
+			//隐藏），将程序结束。 
+			menu.AppendMenu(MF_STRING, WM_DESTROY, "关闭"); 
+			//确定弹出式菜单的位置 
+			menu.TrackPopupMenu(TPM_LEFTALIGN,lpoint->x,lpoint->y,this); 
+			//资源回收 
+			HMENU hmenu = menu.Detach(); 
+			menu.DestroyMenu(); 
+			delete lpoint; 
+		} 
+		break; 
+
+
+		case WM_LBUTTONDBLCLK://双击左键的处理 
+		{ 
+			this->ShowWindow(SW_SHOW);//简单的显示主窗口完事儿 
+		} 
+		break; 
+	} 
+
+	return 0; 
+}
+
+//最小化托盘响应函数
+bool CFacesDemoDlg::TrayMessage( DWORD dwFlag, UINT uIconId)
+{
+	CString strTips;
+	//strTips = _T("Test");
+	NOTIFYICONDATA notify;
+
+	notify.cbSize=sizeof(NOTIFYICONDATA);
+	notify.hWnd= m_hWnd;
+	notify.uFlags=NIF_MESSAGE|NIF_ICON|NIF_TIP;
+	notify.uCallbackMessage = WM_MY_WIND_MINIMIZE;   //用户定义的回调消息
+	//wcscpy_s(notify.szTip, 128, strTips);
+	strcpy(notify.szTip,"人脸检测与分割程序"); //信息提示
+	notify.uID=uIconId;
+	HICON  hIcon= AfxGetApp()->LoadIcon(uIconId);
+	notify.hIcon=hIcon;
+
+	return ::Shell_NotifyIcon(dwFlag, &notify)?true:false;
 }

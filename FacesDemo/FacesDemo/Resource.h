@@ -14,7 +14,9 @@
 #define IDC_REMOVE_NOISE                1004
 #define IDC_BINARY_IMAGE                1005
 #define IDC_ABOUT_US                    1006
-#define IDC_BUTTON1                     1008
+#define IDC_MINIMIZE1                   1009
+#define IDC_BUTTON1                     1010
+#define IDC_MINIMIZE                    1010
 
 // Next default values for new objects
 // 
@@ -22,7 +24,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        131
 #define _APS_NEXT_COMMAND_VALUE         32772
-#define _APS_NEXT_CONTROL_VALUE         1009
+#define _APS_NEXT_CONTROL_VALUE         1011
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif
