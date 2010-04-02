@@ -66,12 +66,14 @@ BOOL CFacesDemoApp::InitInstance()
 		// TODO: 在此放置处理何时用
 		//  “确定”来关闭对话框的代码
 		cvReleaseImage( &dlg.m_readImage);
+		cvReleaseImage( &dlg.m_showImage);
 	}
 	else if (nResponse == IDCANCEL)
 	{
 		// TODO: 在此放置处理何时用
 		//  “取消”来关闭对话框的代码
 		cvReleaseImage( &dlg.m_readImage);
+		cvReleaseImage( &dlg.m_showImage);
 	}
 
 	// 由于对话框已关闭，所以将返回 FALSE 以便退出应用程序，

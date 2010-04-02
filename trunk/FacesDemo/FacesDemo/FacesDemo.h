@@ -16,9 +16,11 @@
 #include <string.h>
 #include <time.h>
 
-#define IMAGE_WIDTH 264
-#define IMAGE_HEIGHT 264
+#define IMAGE_WIDTH 264		//显示图片大小
+#define IMAGE_HEIGHT 264	
 #define IMAGE_CHANNELS 3
+#define IMAGE_MAX_WIDTH 800			//图片最大
+#define IMAGE_MAX_HEIGHT 600
 
 
 // CFacesDemoApp:
