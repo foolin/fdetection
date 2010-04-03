@@ -181,6 +181,23 @@ END
 
 /////////////////////////////////////////////////////////////////////////////
 //
+// Menu
+//
+
+IDR_MENU_TRAY MENU 
+BEGIN
+    POPUP "托盘菜单"
+    BEGIN
+        MENUITEM "打开",                          IDM_TRAY_OPEN
+        MENUITEM "关于",                          IDM_TRAY_ABOUT
+        MENUITEM SEPARATOR
+        MENUITEM "退出",                          IDM_TRAY_QUIT
+    END
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
 // String Table
 //
 
