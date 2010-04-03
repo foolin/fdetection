@@ -31,21 +31,21 @@ protected:
 
 //公有成员
 public:
-	IplImage* m_readImage;
-	IplImage* m_showImage;
-	CvMemStorage* m_storage;
-	CvHaarClassifierCascade* m_cascade;
-	//char* m_cascadeName;
-	CString m_cascadeName;
-	int m_facesCount;
+	IplImage* m_readImage;					//读入的图片
+	IplImage* m_showImage;					//显示的图片
+	CvMemStorage* m_storage;				//人脸识别开辟的内存空间
+	CvHaarClassifierCascade* m_cascade;		//人脸识别分类器
+	CString m_cascadeName;					//分类器文件名
+	int m_facesCount;						//检测人脸的数目
+	CString m_programPath;					//程序路径
 
 //共有函数
 public:
-	void InitConfig();
-	void ResizeImage(IplImage* img);
-	void ShowImage( IplImage* img, UINT ID );
-	void ShowImage( IplImage* srcImage);	//显示图像，包括缩小
-	void FaceDetect( IplImage* image );
+	void InitConfig();							//初始化配置文件
+	void ResizeImage(IplImage* img);			//重置图片大小（辅助显示）
+	void ShowImage( IplImage* img, UINT ID );	//显示图片
+	void ShowImage( IplImage* srcImage);		//显示图像，包括缩小（重载）
+	void FaceDetect( IplImage* image );			//人脸检测
 	void SetReadImage( IplImage* image, int width=0, int height=0 );	//设置图片大小并保存到m_readImage
 
 ///消息映射
