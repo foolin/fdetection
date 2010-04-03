@@ -56,6 +56,7 @@ CFacesDemoDlg::CFacesDemoDlg(CWnd* pParent /*=NULL*/)
 	, m_cascade(0)
 	, m_cascadeName(_T(""))
 	, m_facesCount(0)
+	, m_programPath(_T(""))
 {
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
 }
@@ -164,7 +165,14 @@ BOOL CFacesDemoDlg::OnInitDialog()
 	GetDlgItem( IDC_REMOVE_NOISE )->EnableWindow( FALSE );
 	GetDlgItem( IDC_BINARY_IMAGE )->EnableWindow( FALSE );
 
-	InitConfig();	//初始化配置文件
+	//获取程序路径
+	CString strPath;
+	GetCurrentDirectory(MAX_PATH,strPath.GetBuffer(MAX_PATH));
+	strPath.ReleaseBuffer();
+	m_programPath = strPath;
+
+	//初始化配置文件
+	InitConfig();	
 
 
 	return TRUE;  // 除非将焦点设置到控件，否则返回 TRUE
@@ -244,10 +252,13 @@ void CFacesDemoDlg::InitConfig()
 							".\\config.ini"); 
 	if(strCascadeName == "-1")
 	{
+		/*
 		CString strPath;
 		GetCurrentDirectory(MAX_PATH,strPath.GetBuffer(MAX_PATH));
 		strPath.ReleaseBuffer();
 		m_cascadeName = strPath + "\\haarcascade_frontalface_alt2.xml";
+		*/
+		m_cascadeName = m_programPath + "\\haarcascade_frontalface_alt2.xml";
 		::WritePrivateProfileString("Init","CascadeName", m_cascadeName,".\\config.ini");
 		//MessageBox("配置不正确！");
 	}
@@ -581,6 +592,9 @@ void CFacesDemoDlg::OnBnClickedDetectFace()
 	//m_cascadeName = _T("E:\\OpenCV2.0\\data\\haarcascades\\haarcascade_frontalface_alt2.xml");
 	//MessageBox(m_cascadeName);
 	//m_cascadeName = "haarcascade_frontalface_alt2.xml";
+
+	//重置默认目录，解决xml路径不正确问题
+	SetCurrentDirectory(m_programPath);
 	m_cascade = (CvHaarClassifierCascade*)cvLoad( _T(m_cascadeName), 0, 0, 0 );
     if( !m_cascade )
     {
