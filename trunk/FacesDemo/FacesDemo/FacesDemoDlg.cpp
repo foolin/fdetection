@@ -79,6 +79,9 @@ BEGIN_MESSAGE_MAP(CFacesDemoDlg, CDialog)
 	ON_BN_CLICKED(IDC_BINARY_IMAGE, &CFacesDemoDlg::OnBnClickedBinaryImage)
 	ON_BN_CLICKED(IDC_MINIMIZE, &CFacesDemoDlg::OnBnClickedMinimize)
 	ON_MESSAGE(WM_MY_WIND_MINIMIZE, OnWindMinimize)
+	ON_COMMAND(IDM_TRAY_OPEN, &CFacesDemoDlg::OnTrayOpen)
+	ON_COMMAND(IDM_TRAY_QUIT, &CFacesDemoDlg::OnTrayQuit)
+	ON_COMMAND(IDM_TRAY_ABOUT, &CFacesDemoDlg::OnTrayAbout)
 END_MESSAGE_MAP()
 
 
@@ -532,6 +535,8 @@ void CFacesDemoDlg::OnBnClickedOpenImage()
 	// 使边缘检测按钮生效
 	GetDlgItem( IDC_DETECT_FACE )->EnableWindow( TRUE );
 	GetDlgItem( IDC_SAVE_IMAGE )->EnableWindow( TRUE );
+	GetDlgItem( IDC_REMOVE_NOISE )->EnableWindow( TRUE );
+	GetDlgItem( IDC_BINARY_IMAGE )->EnableWindow( TRUE );
 
 }
 
@@ -576,10 +581,10 @@ void CFacesDemoDlg::OnBnClickedDetectFace()
 	//m_cascadeName = _T("E:\\OpenCV2.0\\data\\haarcascades\\haarcascade_frontalface_alt2.xml");
 	//MessageBox(m_cascadeName);
 	//m_cascadeName = "haarcascade_frontalface_alt2.xml";
-	m_cascade = (CvHaarClassifierCascade*)cvLoad( m_cascadeName, 0, 0, 0 );
+	m_cascade = (CvHaarClassifierCascade*)cvLoad( _T(m_cascadeName), 0, 0, 0 );
     if( !m_cascade )
     {
-        MessageBox(_T("对不起，人脸检测cascade配置不正确"+m_cascadeName));
+        MessageBox(_T("对不起，人脸检测cascade配置不正确"));
         return;
     }
     m_storage = cvCreateMemStorage(0);
@@ -615,6 +620,12 @@ void CFacesDemoDlg::OnBnClickedRemoveNoise()
 void CFacesDemoDlg::OnBnClickedBinaryImage()
 {
 	// TODO: 在此添加控件通知处理程序代码
+	IplImage* dst = cvCreateImage( cvGetSize( m_readImage),
+						m_readImage->depth, m_readImage->nChannels);
+	cvThreshold( m_readImage, dst , 50, 255, CV_THRESH_BINARY ); //取阈值为50把图像转为二值图像
+	SetReadImage( dst );
+	ShowImage( dst );
+	cvReleaseImage( &dst);
 }
 
 void CFacesDemoDlg::OnBnClickedMinimize()
@@ -635,6 +646,8 @@ LRESULT CFacesDemoDlg::OnWindMinimize(WPARAM wParam,LPARAM lParam)
 		{
 			LPPOINT lpoint = new tagPOINT; 
 			::GetCursorPos(lpoint);//得到鼠标位置 
+			
+			/*
 			CMenu menu; 
 			menu.CreatePopupMenu();//声明一个弹出式菜单 
 			//增加菜单项“关闭”，点击则发送消息WM_DESTROY给主窗口（已 
@@ -645,6 +658,17 @@ LRESULT CFacesDemoDlg::OnWindMinimize(WPARAM wParam,LPARAM lParam)
 			//资源回收 
 			HMENU hmenu = menu.Detach(); 
 			menu.DestroyMenu(); 
+			*/
+
+			CMenu menu;
+			menu.LoadMenuA(IDR_MENU_TRAY);
+			CMenu* pPopup = menu.GetSubMenu(0);
+			pPopup->TrackPopupMenu(TPM_LEFTALIGN,lpoint->x,lpoint->y,this);
+			//资源回收 
+			HMENU hmenu = pPopup->Detach(); 
+			pPopup->DestroyMenu();
+			menu.DestroyMenu();
+
 			delete lpoint; 
 		} 
 		break; 
@@ -652,7 +676,8 @@ LRESULT CFacesDemoDlg::OnWindMinimize(WPARAM wParam,LPARAM lParam)
 
 		case WM_LBUTTONDBLCLK://双击左键的处理 
 		{ 
-			this->ShowWindow(SW_SHOW);//简单的显示主窗口完事儿 
+			TrayMessage(NIM_DELETE);	//删除托盘图标
+			this->ShowWindow(SW_SHOW);	//显示主窗口
 		} 
 		break; 
 	} 
@@ -678,4 +703,24 @@ bool CFacesDemoDlg::TrayMessage( DWORD dwFlag, UINT uIconId)
 	notify.hIcon=hIcon;
 
 	return ::Shell_NotifyIcon(dwFlag, &notify)?true:false;
+}
+
+void CFacesDemoDlg::OnTrayOpen()
+{
+	// TODO: 在此添加命令处理程序代码
+	TrayMessage(NIM_DELETE);	//删除托盘图标
+	this->ShowWindow(SW_SHOW);	//显示主窗口
+}
+
+void CFacesDemoDlg::OnTrayQuit()
+{
+	// TODO: 在此添加命令处理程序代码
+	PostQuitMessage(0);	//发送退出消息
+}
+
+void CFacesDemoDlg::OnTrayAbout()
+{
+	// TODO: 在此添加命令处理程序代码
+	CAboutDlg dlg;
+	dlg.DoModal();
 }

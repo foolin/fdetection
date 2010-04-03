@@ -60,4 +60,7 @@ public:
 	afx_msg void OnBnClickedMinimize();
 	afx_msg LRESULT OnWindMinimize(WPARAM wParam,LPARAM lParam);	//最小化消息响应
 	bool TrayMessage(DWORD dwFlag, UINT uIconId=IDR_MAINFRAME);		//最小化托盘响应函数
+	afx_msg void OnTrayOpen();
+	afx_msg void OnTrayQuit();
+	afx_msg void OnTrayAbout();
 };
