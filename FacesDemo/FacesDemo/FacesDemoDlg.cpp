@@ -614,15 +614,23 @@ void CFacesDemoDlg::OnBnClickedDetectFace()
 void CFacesDemoDlg::OnBnClickedRemoveNoise()
 {
 	// TODO: 在此添加控件通知处理程序代码
+	IplImage* dst = cvCreateImage( cvGetSize( m_readImage),
+						m_readImage->depth, m_readImage->nChannels);
+	cvSmooth( m_readImage,dst,CV_MEDIAN,3,0);
+	SetReadImage( dst );
+	ShowImage( dst );
+	cvReleaseImage( &dst);
+	
 }
 
 //二值化
 void CFacesDemoDlg::OnBnClickedBinaryImage()
 {
 	// TODO: 在此添加控件通知处理程序代码
-	IplImage* dst = cvCreateImage( cvGetSize( m_readImage),
-						m_readImage->depth, m_readImage->nChannels);
-	cvThreshold( m_readImage, dst , 50, 255, CV_THRESH_BINARY ); //取阈值为50把图像转为二值图像
+	IplImage* dst = cvCreateImage( cvGetSize( m_readImage), m_readImage->depth, m_readImage->nChannels);
+	//IplImage* dst = cvCreateImage( cvGetSize( m_readImage), IPL_DEPTH_8U, 1);
+	//cvCvtColor(m_readImage, dst, CV_BGR2GRAY);	//彩色变灰度
+	cvThreshold( m_readImage, dst , 80, 255, CV_THRESH_BINARY ); //取阈值为50把图像转为二值图像
 	SetReadImage( dst );
 	ShowImage( dst );
 	cvReleaseImage( &dst);
