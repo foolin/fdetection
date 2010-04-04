@@ -4,6 +4,7 @@
 #include "stdafx.h"
 #include "FacesDemo.h"
 #include "FacesDemoDlg.h"
+#include "Helper.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -141,19 +142,19 @@ BOOL CFacesDemoDlg::OnInitDialog()
 		strPath.ReleaseBuffer();
 		m_cascadeName = strPath + "\\haarcascade_frontalface_alt2.xml";
 		::WritePrivateProfileString("Init","CascadeName", m_cascadeName,".\\config.ini");
-		//MessageBox("配置不正确！");
+		//SetTips("配置不正确！");
 	}
 	else
 	{
 		m_cascadeName = strCascadeName;
-		//MessageBox("配置正确！");
+		//SetTips("配置正确！");
 	}
 	*/
 
 	/*
 	if(::WritePrivateProfileString("Init","CascadeName", m_cascadeName,".\\student.ini"))
 	{
-		MessageBox("写入成功");
+		SetTips("写入成功");
 	}
 	*/
 
@@ -246,11 +247,9 @@ void CFacesDemoDlg::InitConfig()
 {
 	//读取配置文件
 	CString strCascadeName;
-	::GetPrivateProfileStringA("Init","CascadeName","-1", 
-							strCascadeName.GetBuffer(MAX_PATH),
-							MAX_PATH ,
-							".\\config.ini"); 
-	if(strCascadeName == "-1")
+	::GetPrivateProfileString(_T("Init"),_T("CascadeName"),_T("-1"), strCascadeName.GetBuffer(MAX_PATH),
+							MAX_PATH , _T(".\\config.ini")); 
+	if(strCascadeName == _T("-1"))
 	{
 		/*
 		CString strPath;
@@ -258,22 +257,28 @@ void CFacesDemoDlg::InitConfig()
 		strPath.ReleaseBuffer();
 		m_cascadeName = strPath + "\\haarcascade_frontalface_alt2.xml";
 		*/
-		m_cascadeName = m_programPath + "\\haarcascade_frontalface_alt2.xml";
-		::WritePrivateProfileString("Init","CascadeName", m_cascadeName,".\\config.ini");
-		//MessageBox("配置不正确！");
+		m_cascadeName = m_programPath + _T("\\haarcascade_frontalface_alt2.xml");
+		::WritePrivateProfileString(_T("Init"),_T("CascadeName"), m_cascadeName,_T(".\\config.ini"));
+		//SetTips("配置不正确！");
 	}
 	else
 	{
 		m_cascadeName = strCascadeName;
-		//MessageBox("配置正确！");
+		//SetTips("配置正确！");
 	}
 
 	/*
 	if(::WritePrivateProfileString("Init","CascadeName", m_cascadeName,".\\student.ini"))
 	{
-		MessageBox("写入成功");
+		SetTips("写入成功");
 	}
 	*/
+	
+	//如果不存在脸目录，则创建保存脸目录
+	if( !MyDirExist(_T("Faces")) )
+	{
+		MyCreateDir(_T("Faces"));
+	}
 
 
 }
@@ -487,6 +492,22 @@ void CFacesDemoDlg::FaceDetect( IplImage* img )
 			printf( "Save img:%s\n", filename );
 			*/
 
+			CString faceName = _T("Faces/");
+			//IplImage* img2 = cvCreateImage(cvSize(r->width+1,r->height+1), img->depth, img->nChannels ); 
+			//CvRect rect2 = cvRect(r->x - r->width, r->y, r->width+1,r->height+1);
+			//CvRect rect2 = cvRect(center.x - r->width, center.y - r->height, r->width+1,r->height+1);
+			int rect_size = 3;
+			CvRect rect2 = cvRect(center.x - radius + rect_size, center.y - radius + rect_size, radius*2 - rect_size*2, radius*2 - rect_size*2);
+			IplImage* img2 = cvCreateImage(cvSize(rect2.width , rect2.height), img->depth, img->nChannels ); 
+			cvSetImageROI(img, rect2);
+			cvCopy(img,img2);//复制对象区域 
+			//cvShowImage( "result", img2 );
+			cvResetImageROI(img);
+			faceName.Format(_T("Faces/%s%d.jpg"), MyGetRand(), i+1);
+			//sprintf(filename,"images/face%d.jpg",i+1);
+			cvSaveImage(faceName, img2);
+			//printf( "Save img:%s\n", filename );
+
 
             cvCircle( img, center, radius, colors[i%8], 3, 8, 0 );
         }
@@ -500,6 +521,11 @@ void CFacesDemoDlg::FaceDetect( IplImage* img )
 	//释放图像
     cvReleaseImage( &gray );
     cvReleaseImage( &small_img );
+}
+
+void CFacesDemoDlg::SetTips( CString strTips)
+{
+	GetDlgItem( IDC_STATIC_TIPS )->SetWindowText( strTips );
 }
 
 void CFacesDemoDlg::OnBnClickedOk()
@@ -549,6 +575,8 @@ void CFacesDemoDlg::OnBnClickedOpenImage()
 	GetDlgItem( IDC_REMOVE_NOISE )->EnableWindow( TRUE );
 	GetDlgItem( IDC_BINARY_IMAGE )->EnableWindow( TRUE );
 
+	SetTips(_T("已打开图片：") + mPath);
+
 }
 
 
@@ -562,13 +590,20 @@ void CFacesDemoDlg::OnBnClickedSaveImage()
 		_T("image files (*.jpg; *.bmp) |*.jpg;*.bmp;  *.jpeg | All Files (*.*) |*.*||"), NULL
 		);										// 选项图片的约定
 	dlg.m_ofn.lpstrTitle = _T("保存图片");	// 打开文件对话框的标题名
-	dlg.m_ofn.lpstrDefExt = "jpg";
+	dlg.m_ofn.lpstrDefExt = _T("jpg");
 	if( dlg.DoModal() != IDOK )				// 判断是否获得图片
 	{
 		return;
 	}
-	CString mPath = dlg.GetPathName();			// 获取图片路径
-	cvSaveImage(mPath, m_readImage);
+	CString strPath = dlg.GetPathName();			// 获取图片路径
+	cvSaveImage(strPath, m_readImage);
+	SetTips(_T("已保存图片到：") + strPath);
+	//提示是否打开文件夹
+	CString strDir = strPath.Left(strPath.ReverseFind(_T('/')));
+	if(MessageBox(_T("已经保存，是否打开所在文件夹？"), _T("温馨提示"), MB_OKCANCEL) == IDOK)
+	{
+		 ShellExecute(NULL,NULL,strDir,NULL,NULL,SW_SHOW);
+	}
 
 }
 
@@ -590,21 +625,21 @@ void CFacesDemoDlg::OnBnClickedDetectFace()
 {
 	// TODO: 在此添加控件通知处理程序代码
 	//m_cascadeName = _T("E:\\OpenCV2.0\\data\\haarcascades\\haarcascade_frontalface_alt2.xml");
-	//MessageBox(m_cascadeName);
+	//SetTips(m_cascadeName);
 	//m_cascadeName = "haarcascade_frontalface_alt2.xml";
 
 	//重置默认目录，解决xml路径不正确问题
 	SetCurrentDirectory(m_programPath);
-	m_cascade = (CvHaarClassifierCascade*)cvLoad( _T(m_cascadeName), 0, 0, 0 );
+	m_cascade = (CvHaarClassifierCascade*)cvLoad( m_cascadeName, 0, 0, 0 );
     if( !m_cascade )
     {
-        MessageBox(_T("对不起，人脸检测cascade配置不正确"));
+        SetTips(_T("对不起，人脸检测cascade配置不正确"));
         return;
     }
     m_storage = cvCreateMemStorage(0);
 	if( !m_readImage )
 	{
-		MessageBox(_T("请先打开图像"));
+		SetTips(_T("请先打开图像"));
 		return;
 	}
 
@@ -615,13 +650,21 @@ void CFacesDemoDlg::OnBnClickedDetectFace()
 	CString strTips;
 	if (m_facesCount > 0)
 	{
-		strTips.Format("图像处理完毕！共检测到%d张人脸！", m_facesCount);
+		strTips.Format(_T("检测完毕！共检测到%d张人脸！"), m_facesCount);
 	}
 	else
 	{
-		strTips.Format("图像处理完毕！没有检测到人脸！", m_facesCount);
+		strTips.Format(_T("检测完毕！没有检测到人脸！"), m_facesCount);
 	}
-	MessageBox(_T(strTips));
+	SetTips(strTips);
+	if(m_facesCount > 0)
+	{
+		if(MessageBox(strTips + _T("\n\n打开人脸所在文件夹？"), _T("温馨提示"), MB_OKCANCEL) == IDOK)
+		{
+			ShellExecute(NULL,NULL,_T("Faces"),NULL,NULL,SW_SHOW);
+		}
+	}
+
 }
 
 //消除噪声
@@ -634,6 +677,7 @@ void CFacesDemoDlg::OnBnClickedRemoveNoise()
 	SetReadImage( dst );
 	ShowImage( dst );
 	cvReleaseImage( &dst);
+	SetTips(_T("去除噪声处理完毕！"));
 	
 }
 
@@ -648,6 +692,7 @@ void CFacesDemoDlg::OnBnClickedBinaryImage()
 	SetReadImage( dst );
 	ShowImage( dst );
 	cvReleaseImage( &dst);
+	SetTips(_T("二值化处理完毕！"));
 }
 
 void CFacesDemoDlg::OnBnClickedMinimize()
@@ -683,7 +728,7 @@ LRESULT CFacesDemoDlg::OnWindMinimize(WPARAM wParam,LPARAM lParam)
 			*/
 
 			CMenu menu;
-			menu.LoadMenuA(IDR_MENU_TRAY);
+			menu.LoadMenu(IDR_MENU_TRAY);
 			CMenu* pPopup = menu.GetSubMenu(0);
 			pPopup->TrackPopupMenu(TPM_LEFTALIGN,lpoint->x,lpoint->y,this);
 			//资源回收 
@@ -719,7 +764,7 @@ bool CFacesDemoDlg::TrayMessage( DWORD dwFlag, UINT uIconId)
 	notify.uFlags=NIF_MESSAGE|NIF_ICON|NIF_TIP;
 	notify.uCallbackMessage = WM_MY_WIND_MINIMIZE;   //用户定义的回调消息
 	//wcscpy_s(notify.szTip, 128, strTips);
-	strcpy(notify.szTip,"人脸检测与分割程序"); //信息提示
+	strcpy(notify.szTip,_T("人脸检测与分割程序")); //信息提示
 	notify.uID=uIconId;
 	HICON  hIcon= AfxGetApp()->LoadIcon(uIconId);
 	notify.hIcon=hIcon;
