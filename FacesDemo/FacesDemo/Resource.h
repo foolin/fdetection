@@ -16,6 +16,7 @@
 #define IDC_BINARY_IMAGE                1005
 #define IDC_ABOUT_US                    1006
 #define IDC_MINIMIZE                    1010
+#define IDC_STATIC_TIPS                 1011
 #define ID_32772                        32772
 #define ID_32773                        32773
 #define ID_32774                        32774
@@ -34,7 +35,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        132
 #define _APS_NEXT_COMMAND_VALUE         32783
-#define _APS_NEXT_CONTROL_VALUE         1011
+#define _APS_NEXT_CONTROL_VALUE         1012
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

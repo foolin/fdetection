@@ -2,6 +2,7 @@
 //
 
 #pragma once
+#include "afxwin.h"
 
 
 // CFacesDemoDlg 对话框
@@ -47,7 +48,7 @@ public:
 	void ShowImage( IplImage* srcImage);		//显示图像，包括缩小（重载）
 	void FaceDetect( IplImage* image );			//人脸检测
 	void SetReadImage( IplImage* image, int width=0, int height=0 );	//设置图片大小并保存到m_readImage
-
+	void SetTips( CString strTips);				//设置消息提示
 ///消息映射
 public:
 	afx_msg void OnBnClickedOpenImage();
