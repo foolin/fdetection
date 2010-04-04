@@ -83,7 +83,7 @@ CAPTION "关于 FacesDemo"
 FONT 9, "MS Shell Dlg", 0, 0, 0x1
 BEGIN
     ICON            IDR_MAINFRAME,IDC_STATIC,14,14,20,20
-    LTEXT           "人脸的定位与分割 v1.0.0",IDC_STATIC,42,14,114,8,SS_NOPREFIX
+    LTEXT           "人脸的定位与分割 v1.0.1",IDC_STATIC,42,14,114,8,SS_NOPREFIX
     LTEXT           "Copyright (C) 2010, Foolin . All Rights Reserved.",IDC_STATIC,19,72,151,8
     LTEXT           "Author: Foolin",IDC_STATIC,42,32,45,8
     LTEXT           "E-mail: Foolin@liufu.org",IDC_STATIC,42,45,72,8
@@ -138,12 +138,12 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "Foolin Studio"
             VALUE "FileDescription", "Face Detection"
-            VALUE "FileVersion", "1.0.0.1"
+            VALUE "FileVersion", "1.0.1"
             VALUE "InternalName", "FacesDemo.exe"
             VALUE "LegalCopyright", "(C) Foolin Studio。保留所有权利。"
             VALUE "OriginalFilename", "FacesDemo.exe"
             VALUE "ProductName", "FaceDetect"
-            VALUE "ProductVersion", "1.0.0.1"
+            VALUE "ProductVersion", "1.0.1"
         END
     END
     BLOCK "VarFileInfo"
