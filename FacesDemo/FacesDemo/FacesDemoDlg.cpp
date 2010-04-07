@@ -65,6 +65,7 @@ CFacesDemoDlg::CFacesDemoDlg(CWnd* pParent /*=NULL*/)
 void CFacesDemoDlg::DoDataExchange(CDataExchange* pDX)
 {
 	CDialog::DoDataExchange(pDX);
+	DDX_Control(pDX, IDC_CamList, m_camList);
 }
 
 BEGIN_MESSAGE_MAP(CFacesDemoDlg, CDialog)
@@ -77,13 +78,23 @@ BEGIN_MESSAGE_MAP(CFacesDemoDlg, CDialog)
 	ON_BN_CLICKED(IDC_SAVE_IMAGE, &CFacesDemoDlg::OnBnClickedSaveImage)
 	ON_BN_CLICKED(IDC_ABOUT_US, &CFacesDemoDlg::OnBnClickedAboutUs)
 	ON_BN_CLICKED(IDC_DETECT_FACE, &CFacesDemoDlg::OnBnClickedDetectFace)
-	ON_BN_CLICKED(IDC_REMOVE_NOISE, &CFacesDemoDlg::OnBnClickedRemoveNoise)
-	ON_BN_CLICKED(IDC_BINARY_IMAGE, &CFacesDemoDlg::OnBnClickedBinaryImage)
+	//ON_BN_CLICKED(IDC_REMOVE_NOISE, &CFacesDemoDlg::OnBnClickedRemoveNoise)
+	//ON_BN_CLICKED(IDC_BINARY_IMAGE, &CFacesDemoDlg::OnBnClickedBinaryImage)
 	ON_BN_CLICKED(IDC_MINIMIZE, &CFacesDemoDlg::OnBnClickedMinimize)
 	ON_MESSAGE(WM_MY_WIND_MINIMIZE, OnWindMinimize)
-	ON_COMMAND(IDM_TRAY_OPEN, &CFacesDemoDlg::OnTrayOpen)
-	ON_COMMAND(IDM_TRAY_QUIT, &CFacesDemoDlg::OnTrayQuit)
-	ON_COMMAND(IDM_TRAY_ABOUT, &CFacesDemoDlg::OnTrayAbout)
+	ON_COMMAND(ID_Min2Tray, &CFacesDemoDlg::OnBnClickedMinimize)
+	ON_COMMAND(ID_Open, &CFacesDemoDlg::OnOpen)
+	ON_COMMAND(ID_Quit, &CFacesDemoDlg::OnQuit)
+	ON_COMMAND(ID_About, &CFacesDemoDlg::OnAbout)
+	ON_COMMAND(ID_OpenImage, &CFacesDemoDlg::OnBnClickedOpenImage)
+	ON_COMMAND(ID_SaveImage, &CFacesDemoDlg::OnBnClickedSaveImage)
+	ON_COMMAND(ID_FaceDect, &CFacesDemoDlg::OnBnClickedDetectFace)
+	ON_COMMAND(ID_OpenFacesDir, &CFacesDemoDlg::OnBnClickedOpenFacesDir)
+	ON_BN_CLICKED(IDC_RunCam, &CFacesDemoDlg::OnBnClickedRuncam)
+	ON_BN_CLICKED(IDC_StopCam, &CFacesDemoDlg::OnBnClickedStopcam)
+	ON_BN_CLICKED(IDC_OPEN_FACES_DIR, &CFacesDemoDlg::OnBnClickedOpenFacesDir)
+	ON_COMMAND(ID_HomePage, &CFacesDemoDlg::OnHomepage)
+	ON_COMMAND(ID_PostMsg, &CFacesDemoDlg::OnPostmsg)
 END_MESSAGE_MAP()
 
 
@@ -128,6 +139,12 @@ BOOL CFacesDemoDlg::OnInitDialog()
 	m_showImage = cvCreateImage( imgSize, IPL_DEPTH_8U, IMAGE_CHANNELS );
 
 
+	CMenu menu;
+	menu.LoadMenu(IDR_MENU_TOP);
+	SetMenu(&menu);
+	menu.Detach();
+
+
 	/*
 	//读取配置文件
 	CString strCascadeName;
@@ -163,8 +180,8 @@ BOOL CFacesDemoDlg::OnInitDialog()
 	//使人脸检测等按钮失效
 	GetDlgItem( IDC_SAVE_IMAGE )->EnableWindow( FALSE );
 	GetDlgItem( IDC_DETECT_FACE )->EnableWindow( FALSE );
-	GetDlgItem( IDC_REMOVE_NOISE )->EnableWindow( FALSE );
-	GetDlgItem( IDC_BINARY_IMAGE )->EnableWindow( FALSE );
+	//GetDlgItem( IDC_REMOVE_NOISE )->EnableWindow( FALSE );
+	//GetDlgItem( IDC_BINARY_IMAGE )->EnableWindow( FALSE );
 
 	//获取程序路径
 	CString strPath;
@@ -473,25 +490,8 @@ void CFacesDemoDlg::FaceDetect( IplImage* img )
             center.x = cvRound((r->x + r->width*0.5)*scale);
             center.y = cvRound((r->y + r->height*0.5)*scale);
             radius = cvRound((r->width + r->height)*0.25*scale);
-
-			/*
-			///方法二：仅仅将获取图片保存为实际区域的大小///
-			char filename[40] = "face.jpg";
-			//IplImage* img2 = cvCreateImage(cvSize(r->width+1,r->height+1), img->depth, img->nChannels ); 
-			//CvRect rect2 = cvRect(r->x - r->width, r->y, r->width+1,r->height+1);
-			//CvRect rect2 = cvRect(center.x - r->width, center.y - r->height, r->width+1,r->height+1);
-			int rect_size = 3;
-			CvRect rect2 = cvRect(center.x - radius + rect_size, center.y - radius + rect_size, radius*2 - rect_size*2, radius*2 - rect_size*2);
-			IplImage* img2 = cvCreateImage(cvSize(rect2.width , rect2.height), img->depth, img->nChannels ); 
-			cvSetImageROI(img, rect2);
-			cvCopy(img,img2);//复制对象区域 
-			cvShowImage( "result", img2 );
-			cvResetImageROI(img);
-			sprintf(filename,"images/face%d.jpg",i+1);
-			cvSaveImage(filename, img2);
-			printf( "Save img:%s\n", filename );
-			*/
-
+			
+			//保存相片
 			CString faceName = _T("Faces/");
 			//IplImage* img2 = cvCreateImage(cvSize(r->width+1,r->height+1), img->depth, img->nChannels ); 
 			//CvRect rect2 = cvRect(r->x - r->width, r->y, r->width+1,r->height+1);
@@ -507,6 +507,8 @@ void CFacesDemoDlg::FaceDetect( IplImage* img )
 			//sprintf(filename,"images/face%d.jpg",i+1);
 			cvSaveImage(faceName, img2);
 			//printf( "Save img:%s\n", filename );
+			//保存提示
+			SetTips(faceName);
 
 
             cvCircle( img, center, radius, colors[i%8], 3, 8, 0 );
@@ -572,8 +574,8 @@ void CFacesDemoDlg::OnBnClickedOpenImage()
 	// 使边缘检测按钮生效
 	GetDlgItem( IDC_DETECT_FACE )->EnableWindow( TRUE );
 	GetDlgItem( IDC_SAVE_IMAGE )->EnableWindow( TRUE );
-	GetDlgItem( IDC_REMOVE_NOISE )->EnableWindow( TRUE );
-	GetDlgItem( IDC_BINARY_IMAGE )->EnableWindow( TRUE );
+	//GetDlgItem( IDC_REMOVE_NOISE )->EnableWindow( TRUE );
+	//GetDlgItem( IDC_BINARY_IMAGE )->EnableWindow( TRUE );
 
 	SetTips(_T("已打开图片：") + mPath);
 
@@ -642,10 +644,18 @@ void CFacesDemoDlg::OnBnClickedDetectFace()
 		SetTips(_T("请先打开图像"));
 		return;
 	}
-
+	
+	//去除噪声
+	IplImage* dst = cvCreateImage( cvGetSize( m_readImage),
+							m_readImage->depth, m_readImage->nChannels);
+	cvSmooth( m_readImage,dst,CV_MEDIAN,3,0);
+	SetReadImage( dst );
+	ShowImage( dst );
     //人脸检测
-	FaceDetect(m_readImage);
-	ShowImage(m_readImage);
+	FaceDetect( dst );
+	SetReadImage( dst );
+	ShowImage(dst);
+	cvReleaseImage( &dst);
 	
 	CString strTips;
 	if (m_facesCount > 0)
@@ -657,6 +667,7 @@ void CFacesDemoDlg::OnBnClickedDetectFace()
 		strTips.Format(_T("检测完毕！没有检测到人脸！"), m_facesCount);
 	}
 	SetTips(strTips);
+	/*
 	if(m_facesCount > 0)
 	{
 		if(MessageBox(strTips + _T("\n\n打开人脸所在文件夹？"), _T("温馨提示"), MB_OKCANCEL) == IDOK)
@@ -664,9 +675,11 @@ void CFacesDemoDlg::OnBnClickedDetectFace()
 			ShellExecute(NULL,NULL,_T("Faces"),NULL,NULL,SW_SHOW);
 		}
 	}
+	*/
 
 }
 
+/*
 //消除噪声
 void CFacesDemoDlg::OnBnClickedRemoveNoise()
 {
@@ -694,6 +707,7 @@ void CFacesDemoDlg::OnBnClickedBinaryImage()
 	cvReleaseImage( &dst);
 	SetTips(_T("二值化处理完毕！"));
 }
+*/
 
 void CFacesDemoDlg::OnBnClickedMinimize()
 {
@@ -772,22 +786,49 @@ bool CFacesDemoDlg::TrayMessage( DWORD dwFlag, UINT uIconId)
 	return ::Shell_NotifyIcon(dwFlag, &notify)?true:false;
 }
 
-void CFacesDemoDlg::OnTrayOpen()
+void CFacesDemoDlg::OnOpen()
 {
 	// TODO: 在此添加命令处理程序代码
 	TrayMessage(NIM_DELETE);	//删除托盘图标
 	this->ShowWindow(SW_SHOW);	//显示主窗口
 }
 
-void CFacesDemoDlg::OnTrayQuit()
+void CFacesDemoDlg::OnQuit()
 {
 	// TODO: 在此添加命令处理程序代码
 	PostQuitMessage(0);	//发送退出消息
 }
 
-void CFacesDemoDlg::OnTrayAbout()
+void CFacesDemoDlg::OnAbout()
 {
 	// TODO: 在此添加命令处理程序代码
 	CAboutDlg dlg;
 	dlg.DoModal();
+}
+void CFacesDemoDlg::OnBnClickedRuncam()
+{
+	// TODO: 在此添加控件通知处理程序代码
+}
+
+void CFacesDemoDlg::OnBnClickedStopcam()
+{
+	// TODO: 在此添加控件通知处理程序代码
+}
+
+void CFacesDemoDlg::OnBnClickedOpenFacesDir()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	ShellExecute(NULL,NULL,_T("Faces"),NULL,NULL,SW_SHOW);
+}
+
+void CFacesDemoDlg::OnHomepage()
+{
+	// TODO: 在此添加命令处理程序代码
+	ShellExecute(NULL,"open","http://www.liufu.org/ling",NULL,NULL,SW_SHOW); 
+}
+
+void CFacesDemoDlg::OnPostmsg()
+{
+	// TODO: 在此添加命令处理程序代码
+	ShellExecute(NULL,"open","http://www.liufu.org/Ling/guestbook.asp",NULL,NULL,SW_SHOW); 
 }

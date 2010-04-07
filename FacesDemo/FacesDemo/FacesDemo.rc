@@ -91,26 +91,29 @@ BEGIN
     PUSHBUTTON      "关闭",IDOK,129,90,50,14
 END
 
-IDD_FACESDEMO_DIALOG DIALOGEX 0, 0, 293, 211
+IDD_FACESDEMO_DIALOG DIALOGEX 0, 0, 295, 228
 STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_MINIMIZEBOX | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU
 EXSTYLE WS_EX_APPWINDOW
 CAPTION "人脸的定位与分割 V1.0 Powered by Foolin"
 FONT 9, "MS Shell Dlg", 0, 0, 0x1
 BEGIN
     CONTROL         "",IDC_IMAGE,"Static",SS_BLACKFRAME,16,22,160,160
-    PUSHBUTTON      "打开图像",IDC_OPEN_IMAGE,210,19,50,14
-    PUSHBUTTON      "人脸检测",IDC_DETECT_FACE,211,76,50,14
-    GROUPBOX        "图像",IDC_STATIC,193,7,87,53
-    PUSHBUTTON      "保存图像",IDC_SAVE_IMAGE,210,37,50,14
-    GROUPBOX        "处理",IDC_STATIC,194,65,85,74
-    PUSHBUTTON      "消除噪声",IDC_REMOVE_NOISE,211,97,50,14
-    PUSHBUTTON      "二值化",IDC_BINARY_IMAGE,211,117,50,14
-    GROUPBOX        "程序",IDC_STATIC,195,145,87,49
-    CTEXT           "门禁系统中陌生人脸的识别--",IDC_STATIC,17,7,88,8
-    LTEXT           "《人脸的定位和分割》",IDC_STATIC,107,7,70,8
-    PUSHBUTTON      "关于",IDC_ABOUT_US,215,154,50,14
-    PUSHBUTTON      "最小化到托盘",IDC_MINIMIZE,215,175,50,14
-    CTEXT           "请选择【打开图像】操作...",IDC_STATIC_TIPS,7,186,183,18,SS_REALSIZECONTROL
+    PUSHBUTTON      "打开图像",IDC_OPEN_IMAGE,211,11,50,14
+    PUSHBUTTON      "人脸检测",IDC_DETECT_FACE,211,119,50,14
+    GROUPBOX        "图像",IDC_STATIC,195,2,80,43
+    PUSHBUTTON      "保存图像",IDC_SAVE_IMAGE,211,26,50,14
+    GROUPBOX        "处理",IDC_STATIC,195,108,80,47
+    GROUPBOX        "程序",IDC_STATIC,196,158,80,48
+    CTEXT           "门禁系统中陌生人脸的识别--",IDC_STATIC,18,9,88,8
+    LTEXT           "《人脸的定位和分割》",IDC_STATIC,107,9,70,8
+    PUSHBUTTON      "关于",IDC_ABOUT_US,213,170,50,14
+    PUSHBUTTON      "最小化到托盘",IDC_MINIMIZE,213,187,50,14
+    CTEXT           "请选择【打开图像】操作...",IDC_STATIC_TIPS,8,187,183,18,SS_REALSIZECONTROL
+    GROUPBOX        "视频",IDC_STATIC,195,54,80,49
+    PUSHBUTTON      "打开人脸目录",IDC_OPEN_FACES_DIR,211,135,50,14
+    PUSHBUTTON      "启动",IDC_RunCam,205,83,28,14
+    PUSHBUTTON      "停止",IDC_StopCam,238,83,27,14
+    COMBOBOX        IDC_CamList,204,65,64,30,CBS_DROPDOWN | CBS_SORT | WS_VSCROLL | WS_TABSTOP
 END
 
 
@@ -172,9 +175,9 @@ BEGIN
     IDD_FACESDEMO_DIALOG, DIALOG
     BEGIN
         LEFTMARGIN, 7
-        RIGHTMARGIN, 286
-        TOPMARGIN, 7
-        BOTTOMMARGIN, 204
+        RIGHTMARGIN, 288
+        TOPMARGIN, 2
+        BOTTOMMARGIN, 221
     END
 END
 #endif    // APSTUDIO_INVOKED
@@ -189,10 +192,39 @@ IDR_MENU_TRAY MENU
 BEGIN
     POPUP "托盘菜单"
     BEGIN
-        MENUITEM "打开",                          IDM_TRAY_OPEN
-        MENUITEM "关于",                          IDM_TRAY_ABOUT
+        MENUITEM "打开",                          ID_Open
+        MENUITEM "关于",                          ID_About
         MENUITEM SEPARATOR
-        MENUITEM "退出",                          IDM_TRAY_QUIT
+        MENUITEM "退出",                          ID_Quit
+    END
+END
+
+IDR_MENU_TOP MENU 
+BEGIN
+    POPUP "文件"
+    BEGIN
+        MENUITEM "打开图像",                        ID_OpenImage
+        MENUITEM "保存图像",                        ID_SaveImage
+        MENUITEM "启动视频",                        ID_RunCamera
+        MENUITEM "停止视频",                        ID_StopCamera
+        MENUITEM SEPARATOR
+        MENUITEM "最小化至托盘",                      ID_Min2Tray
+        MENUITEM "退出程序",                        ID_Quit
+    END
+    POPUP "操作"
+    BEGIN
+        MENUITEM "人脸检测",                        ID_FaceDect
+        MENUITEM "打开人脸目录",                      ID_OpenFacesDir
+    END
+    POPUP "选项"
+    BEGIN
+        MENUITEM "配置选项",                        ID_Config
+    END
+    POPUP "帮助"
+    BEGIN
+        MENUITEM "关于本程序",                       ID_About
+        MENUITEM "作者主页",                        ID_HomePage
+        MENUITEM "反馈建议",                        ID_PostMsg
     END
 END
 
