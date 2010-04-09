@@ -21,6 +21,8 @@
 #define IMAGE_CHANNELS 3
 #define IMAGE_MAX_WIDTH 800			//图片最大
 #define IMAGE_MAX_HEIGHT 600
+#define FACE_WIDTH 128			//人脸大小
+#define FACE_HEIGHT 128
 
 
 // CFacesDemoApp:
