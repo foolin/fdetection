@@ -40,6 +40,7 @@ public:
 	CString m_cascadeName;					//分类器文件名
 	int m_facesCount;						//检测人脸的数目
 	CString m_programPath;					//程序路径
+	int m_runCamera;
 
 //共有函数
 public:
@@ -50,6 +51,8 @@ public:
 	void FaceDetect( IplImage* image );			//人脸检测
 	void SetReadImage( IplImage* image, int width=0, int height=0 );	//设置图片大小并保存到m_readImage
 	void SetTips( CString strTips);				//设置消息提示
+	void Normalization( IplImage* image );		//归一化
+
 ///消息映射
 public:
 	afx_msg void OnBnClickedOpenImage();
@@ -65,7 +68,7 @@ public:
 	afx_msg void OnOpen();
 	afx_msg void OnQuit();
 	afx_msg void OnAbout();
-	CComboBox m_camList;
+	//CComboBox m_camList;
 	afx_msg void OnBnClickedRuncam();
 	afx_msg void OnBnClickedStopcam();
 	afx_msg void OnBnClickedOpenFacesDir();

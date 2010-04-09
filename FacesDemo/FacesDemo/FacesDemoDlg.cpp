@@ -58,6 +58,7 @@ CFacesDemoDlg::CFacesDemoDlg(CWnd* pParent /*=NULL*/)
 	, m_cascadeName(_T(""))
 	, m_facesCount(0)
 	, m_programPath(_T(""))
+	, m_runCamera(0)
 {
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
 }
@@ -65,7 +66,7 @@ CFacesDemoDlg::CFacesDemoDlg(CWnd* pParent /*=NULL*/)
 void CFacesDemoDlg::DoDataExchange(CDataExchange* pDX)
 {
 	CDialog::DoDataExchange(pDX);
-	DDX_Control(pDX, IDC_CamList, m_camList);
+	//DDX_Control(pDX, IDC_CamList, m_camList);
 }
 
 BEGIN_MESSAGE_MAP(CFacesDemoDlg, CDialog)
@@ -180,6 +181,7 @@ BOOL CFacesDemoDlg::OnInitDialog()
 	//使人脸检测等按钮失效
 	GetDlgItem( IDC_SAVE_IMAGE )->EnableWindow( FALSE );
 	GetDlgItem( IDC_DETECT_FACE )->EnableWindow( FALSE );
+	GetDlgItem( IDC_StopCam )->EnableWindow( FALSE );
 	//GetDlgItem( IDC_REMOVE_NOISE )->EnableWindow( FALSE );
 	//GetDlgItem( IDC_BINARY_IMAGE )->EnableWindow( FALSE );
 
@@ -423,8 +425,8 @@ void CFacesDemoDlg::SetReadImage( IplImage* image, int maxWidth, int maxHeight)	
 	}
 
 	//求缩放宽度和高度
-	tempSize.width = (int) image->width * scale;
-	tempSize.height = (int) image->height * scale;
+	tempSize.width = cvRound( image->width * scale );
+	tempSize.height = cvRound( image->height * scale);
 
 	//缩小图片
 	tempImage = cvCreateImage( tempSize, image->depth, image->nChannels);	//构造目标图象
@@ -442,6 +444,24 @@ void CFacesDemoDlg::SetReadImage( IplImage* image, int maxWidth, int maxHeight)	
 	cvReleaseImage( &tempImage);
 
 }
+
+void CFacesDemoDlg::Normalization(IplImage* image)
+{
+
+	IplImage* imgCopy = cvCloneImage(image);
+	cvZero( image );
+	cvSetImageROI( image, cvRect( 0, 0, FACE_WIDTH, FACE_HEIGHT) );
+	cvResize( imgCopy, image , CV_INTER_LINEAR);
+	cvReleaseImage( &imgCopy);
+
+	// 设置 TheImage 的 ROI 区域，用来存入图片 img
+	//cvSetImageROI( m_showImage, cvRect( tlx, tly, nw, nh) );
+	// 对图片 img 进行缩放，并存入到 m_showImage 中
+	//cvResize( img, m_showImage );
+	// 重置 TheImage 的 ROI 准备读入下一幅图片
+	//cvResetImageROI( m_showImage );
+}
+
 
 
 void CFacesDemoDlg::FaceDetect( IplImage* img )
@@ -473,8 +493,12 @@ void CFacesDemoDlg::FaceDetect( IplImage* img )
     if( m_cascade )
     {
         double t = (double)cvGetTickCount();
+
+        //CvSeq* faces = cvHaarDetectObjects( small_img, m_cascade, m_storage,
+                                           // 1.1, 2, 0/*CV_HAAR_DO_CANNY_PRUNING*/,
+                                            //cvSize(30, 30) );
         CvSeq* faces = cvHaarDetectObjects( small_img, m_cascade, m_storage,
-                                            1.1, 2, 0/*CV_HAAR_DO_CANNY_PRUNING*/,
+                                            1.1, 2, CV_HAAR_DO_CANNY_PRUNING,
                                             cvSize(30, 30) );
         t = (double)cvGetTickCount() - t;
         //printf( "detection time = %gms\n", t/((double)cvGetTickFrequency()*1000.) );
@@ -505,6 +529,7 @@ void CFacesDemoDlg::FaceDetect( IplImage* img )
 			cvResetImageROI(img);
 			faceName.Format(_T("Faces/%s%d.jpg"), MyGetRand(), i+1);
 			//sprintf(filename,"images/face%d.jpg",i+1);
+			Normalization(img2);	//归一化脸部头像
 			cvSaveImage(faceName, img2);
 			//printf( "Save img:%s\n", filename );
 			//保存提示
@@ -543,7 +568,7 @@ void CFacesDemoDlg::OnBnClickedOpenImage()
 	// TODO: 在此添加控件通知处理程序代码
 	CFileDialog dlg( TRUE, _T("*.bmp"), NULL,
 					OFN_FILEMUSTEXIST | OFN_PATHMUSTEXIST | OFN_HIDEREADONLY,
-					_T("image files (*.bmp; *.jpg) |*.bmp; *.jpg; *.jpeg | All Files (*.*) |*.*||"),
+					_T("image files (*.bmp; *.jpg; *.tiff) |*.bmp; *.jpg; *.tiff| All Files (*.*) |*.*||"),
 					NULL );										// 选项图片的约定
 	dlg.m_ofn.lpstrTitle = _T("打开图片");	// 打开文件对话框的标题名
 	if( dlg.DoModal() != IDOK )				// 判断是否获得图片
@@ -635,27 +660,38 @@ void CFacesDemoDlg::OnBnClickedDetectFace()
 	m_cascade = (CvHaarClassifierCascade*)cvLoad( m_cascadeName, 0, 0, 0 );
     if( !m_cascade )
     {
-        SetTips(_T("对不起，人脸检测cascade配置不正确"));
+        MessageBox(_T("对不起，人脸检测cascade配置不正确"));
         return;
     }
     m_storage = cvCreateMemStorage(0);
 	if( !m_readImage )
 	{
-		SetTips(_T("请先打开图像"));
+		 MessageBox(_T("请先打开图像"));
 		return;
 	}
-	
+
+	/*
 	//去除噪声
+	SetTips(_T("正在去除噪声..."));
 	IplImage* dst = cvCreateImage( cvGetSize( m_readImage),
 							m_readImage->depth, m_readImage->nChannels);
 	cvSmooth( m_readImage,dst,CV_MEDIAN,3,0);
 	SetReadImage( dst );
 	ShowImage( dst );
+
+
     //人脸检测
+	SetTips(_T("正在人脸检测..."));
 	FaceDetect( dst );
 	SetReadImage( dst );
 	ShowImage(dst);
 	cvReleaseImage( &dst);
+	*/
+
+    //人脸检测
+	SetTips(_T("正在人脸检测..."));
+	FaceDetect( m_readImage );
+	ShowImage(m_readImage);
 	
 	CString strTips;
 	if (m_facesCount > 0)
@@ -808,11 +844,107 @@ void CFacesDemoDlg::OnAbout()
 void CFacesDemoDlg::OnBnClickedRuncam()
 {
 	// TODO: 在此添加控件通知处理程序代码
+	m_runCamera = 1;
+
+	CvCapture* capture = 0;
+	IplImage *frame;
+	capture = cvCaptureFromCAM(0);
+	if(!capture)
+	{
+		MessageBox("未能启动摄像头，请检查摄像头设备！");
+		return;
+	}
+
+	// 使边缘检测按钮生效
+	GetDlgItem( IDC_DETECT_FACE )->EnableWindow( TRUE );
+	GetDlgItem( IDC_SAVE_IMAGE )->EnableWindow( TRUE );
+	GetDlgItem( IDC_RunCam )->EnableWindow( FALSE );
+	GetDlgItem( IDC_StopCam )->EnableWindow( TRUE );
+
+	// 创建一个视频播放窗口
+	cvNamedWindow("camera");
+	// 将这个窗口缩至最小
+	cvResizeWindow("camera",0,0);
+	// 获取窗口句柄
+	HWND hWnd = (HWND) cvGetWindowHandle("camera");
+	// 获取该窗口的父窗口句柄
+	HWND hParent = ::GetParent(hWnd);
+	// 获取mymfc的GUI窗口句柄
+	/*
+	HWND hwnd1=::FindWindow("CFacesDemoDlg","FacesDemo");
+	// 将GUI窗口设置为视频播放窗口的父窗口，使视频在 GUI 的指定区域播放
+	::SetParent(hWnd, hwnd1);
+	*/
+	::SetParent(hWnd, this->m_hWnd);
+	// 隐藏所创建的视频播放窗口
+	::ShowWindow(hWnd, SW_HIDE);
+	::ShowWindow(hParent, SW_HIDE);
+
+
+
+	//重置默认目录，解决xml路径不正确问题
+	SetCurrentDirectory(m_programPath);
+	m_cascade = (CvHaarClassifierCascade*)cvLoad( m_cascadeName, 0, 0, 0 );
+    if( !m_cascade )
+    {
+        MessageBox(_T("对不起，人脸检测cascade配置不正确"));
+        return;
+    }
+    m_storage = cvCreateMemStorage(0);
+
+
+	int i = 0;
+	while(m_runCamera)
+	{
+
+		/*
+		IplImage *frame_copy = 0;
+
+        if( !cvGrabFrame( capture ))
+            break;
+		frame = cvRetrieveFrame( capture );
+        if( !frame )
+            break;
+        if( !frame_copy )
+            frame_copy = cvCreateImage( cvSize(frame->width,frame->height),
+                                        IPL_DEPTH_8U, frame->nChannels );
+        if( frame->origin == IPL_ORIGIN_TL )
+            cvCopy( frame, frame_copy, 0 );
+        else
+            cvFlip( frame, frame_copy, 0 );
+		*/
+
+		//获取一帧
+		frame = cvQueryFrame( capture );
+		IplImage* frameCopy = cvCloneImage(frame);
+
+		//人脸检测
+		FaceDetect( frameCopy );
+
+		SetReadImage(frameCopy);
+		ShowImage(frameCopy);
+		cvWaitKey(500);
+		//Sleep(2000);
+		CString strTips;
+		strTips.Format(_T("已经启动摄像头:%ds"), ++i);
+		SetTips(strTips);
+
+		cvReleaseImage( &frameCopy );
+
+	}
+
+    cvReleaseCapture( &capture );
+
+
 }
 
 void CFacesDemoDlg::OnBnClickedStopcam()
 {
 	// TODO: 在此添加控件通知处理程序代码
+	m_runCamera = 0;
+	GetDlgItem( IDC_RunCam )->EnableWindow( TRUE );
+	GetDlgItem( IDC_StopCam )->EnableWindow( FALSE );
+	SetTips(_T("已经停止摄像头！"));
 }
 
 void CFacesDemoDlg::OnBnClickedOpenFacesDir()
