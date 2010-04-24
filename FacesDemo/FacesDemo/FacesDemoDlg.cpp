@@ -276,7 +276,7 @@ void CFacesDemoDlg::InitConfig()
 		strPath.ReleaseBuffer();
 		m_cascadeName = strPath + "\\haarcascade_frontalface_alt2.xml";
 		*/
-		m_cascadeName = m_programPath + _T("\\haarcascade_frontalface_alt2.xml");
+		m_cascadeName = m_programPath + _T("\\haarcascade_frontalface_alt_tree.xml");
 		::WritePrivateProfileString(_T("Init"),_T("CascadeName"), m_cascadeName,_T(".\\config.ini"));
 		//SetTips("配置不正确！");
 	}
@@ -534,9 +534,11 @@ void CFacesDemoDlg::FaceDetect( IplImage* img )
 			//printf( "Save img:%s\n", filename );
 			//保存提示
 			SetTips(faceName);
-
-
-            cvCircle( img, center, radius, colors[i%8], 3, 8, 0 );
+			
+			//画矩形
+			cvRectangle( img, cvPoint(rect2.x, rect2.y), cvPoint(rect2.x + rect2.width, rect2.y + rect2.height), colors[i%8], 3, 8, 0);
+			//画圆
+            //cvCircle( img, center, radius, colors[i%8], 3, 8, 0 );
         }
     }
  
