@@ -19,8 +19,8 @@
 #define IMAGE_WIDTH 266		//显示图片大小
 #define IMAGE_HEIGHT 266	
 #define IMAGE_CHANNELS 3
-#define IMAGE_MAX_WIDTH 800			//图片最大
-#define IMAGE_MAX_HEIGHT 600
+#define IMAGE_MAX_WIDTH 1000			//图片最大
+#define IMAGE_MAX_HEIGHT 1000
 #define FACE_WIDTH 128			//人脸大小
 #define FACE_HEIGHT 128
 
