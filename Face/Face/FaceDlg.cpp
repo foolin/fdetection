@@ -7,6 +7,7 @@
 
 #include "DetectDlg.h"
 #include "CheckDlg.h"
+#include "ComposeDlg.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -67,6 +68,7 @@ BEGIN_MESSAGE_MAP(CFaceDlg, CDialog)
 	//}}AFX_MSG_MAP
 	ON_BN_CLICKED(IDC_Btn_Detect, &CFaceDlg::OnBnClickedBtnDetect)
 	ON_BN_CLICKED(IDC_Btn_Check, &CFaceDlg::OnBnClickedBtnCheck)
+	ON_BN_CLICKED(IDC_Btn_Compose, &CFaceDlg::OnBnClickedBtnCompose)
 END_MESSAGE_MAP()
 
 
@@ -165,5 +167,12 @@ void CFaceDlg::OnBnClickedBtnCheck()
 {
 	// TODO: 在此添加控件通知处理程序代码
 	CCheckDlg dlg;
+	dlg.DoModal();
+}
+
+void CFaceDlg::OnBnClickedBtnCompose()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	CComposeDlg dlg;
 	dlg.DoModal();
 }

@@ -192,6 +192,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\ComposeDlg.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\DetectDlg.cpp"
 				>
 			</File>
@@ -231,6 +235,10 @@
 			>
 			<File
 				RelativePath=".\CheckDlg.h"
+				>
+			</File>
+			<File
+				RelativePath=".\ComposeDlg.h"
 				>
 			</File>
 			<File
