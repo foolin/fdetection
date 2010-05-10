@@ -31,4 +31,5 @@ protected:
 public:
 	afx_msg void OnBnClickedBtnDetect();
 	afx_msg void OnBnClickedBtnCheck();
+	afx_msg void OnBnClickedBtnCompose();
 };
