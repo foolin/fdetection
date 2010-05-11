@@ -12,3 +12,5 @@ public:
 	BOOL CreateDir(CString path);		//创建目录
 	CString RandDate();				//把当前时间变成字符串（文件命名）
 };
+
+

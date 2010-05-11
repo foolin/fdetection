@@ -37,6 +37,14 @@
 
 
 
+#ifndef MY_OPENCV
+	#include "cv.h"
+	#include "highgui.h"
+	#define MY_OPENCV  1          //标记为已定义
+#endif
+
+#include "math.h"
+
 
 
 
