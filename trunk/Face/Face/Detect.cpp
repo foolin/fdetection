@@ -1,5 +1,5 @@
 #include "StdAfx.h"
-#include "Face.h"
+#include "Detect.h"
 
 CDetect::CDetect(void)
 {
@@ -29,9 +29,9 @@ void CDetect::Init()
 }
 
 
-bool CDetect::Load(char *strPath)
+bool CDetect::Load(CString strPath)
 {
-	if(strPath == NULL)
+	if(strPath.IsEmpty())
 	{
 		return false;
 	}
@@ -262,7 +262,7 @@ bool CDetect::SetBinaryImage(IplImage* image)
 
 
 //»À¡≥ºÏ≤‚
-bool CDetect::FaceDetect( char *strCascadeName )
+bool CDetect::FaceDetect( CString strCascadeName )
 {
 
 	//»•‘Î…˘

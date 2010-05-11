@@ -57,13 +57,13 @@ public:
 
 public:
 	void Init();							//初始化图像
-	bool Load(char *strPath);				//载入图像
+	bool Load(CString strPath);				//载入图像
 	//void ResizeImage(IplImage* image, int maxWidth=0, int maxHeight=0 );			//重置图片大小
 	bool SetImage( IplImage* image, int maxWidth=0, int maxHeight=0 );
 	bool SetReadImage( IplImage* image, int maxWidth=0, int maxHeight=0 );	//设置图片大小并保存到m_pReadImage/m_pGrayImage/m_pBinaryImage
 	bool SetGrayImage( IplImage* image = NULL);		//设置图片大小并保存到m_readImage
 	bool SetBinaryImage(IplImage* image = NULL);		//二值化
-	bool FaceDetect( char *strCascadeName );			//人脸检测
+	bool FaceDetect( CString strCascadeName );			//人脸检测
 	void Normalization( IplImage* image );		//归一化
 	void RemoveNoise();							//去除噪声
 	void Release();						//释放资源

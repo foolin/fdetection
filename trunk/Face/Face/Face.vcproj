@@ -196,6 +196,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Config.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Detect.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\DetectDlg.cpp"
 				>
 			</File>
@@ -227,6 +235,10 @@
 					/>
 				</FileConfiguration>
 			</File>
+			<File
+				RelativePath=".\Utility.cpp"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="Í·ÎÄ¼þ"
@@ -239,6 +251,14 @@
 			</File>
 			<File
 				RelativePath=".\ComposeDlg.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Config.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Detect.h"
 				>
 			</File>
 			<File
@@ -263,6 +283,10 @@
 			</File>
 			<File
 				RelativePath=".\targetver.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Utility.h"
 				>
 			</File>
 		</Filter>
