@@ -42,4 +42,6 @@ private:
 	CDetect m_objDetect;
 	CConfig m_objConfig;
 	CString m_strCascadeName;
+public:
+	virtual BOOL OnInitDialog();
 };
