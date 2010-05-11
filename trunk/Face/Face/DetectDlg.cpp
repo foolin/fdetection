@@ -15,19 +15,6 @@ CDetectDlg::CDetectDlg(CWnd* pParent /*=NULL*/)
 	//, m_showImage(NULL)
 {
 	
-	//初始化ShowImage
-	CvSize imgSize;
-    imgSize.height = SHOWIMAGE_HEIGHT;
-    imgSize.width = SHOWIMAGE_WIDTH;
-	m_showImage = cvCreateImage( imgSize, IPL_DEPTH_8U, 3 );
-
-	//初始化配置文件
-	m_strCascadeName = m_objConfig.GetConfig(_T("Detect"), _T("CascadeName"));
-	if( m_strCascadeName == _T(""))
-	{
-		m_strCascadeName = _T("xml\\haarcascade_frontalface_alt_tree.xml");
-		m_objConfig.SetConfig(_T("Detect"), _T("CascadeName"), m_strCascadeName);
-	}
 
 }
 
@@ -165,11 +152,10 @@ void CDetectDlg::OnBnClickedDtbtnOpenimage()
 	ShowImage( m_objDetect.m_pReadImage);
 
 
-	//// 使边缘检测按钮生效
-	//GetDlgItem( IDC_DETECT_FACE )->EnableWindow( TRUE );
-	//GetDlgItem( IDC_SAVE_IMAGE )->EnableWindow( TRUE );
-	////GetDlgItem( IDC_REMOVE_NOISE )->EnableWindow( TRUE );
-	////GetDlgItem( IDC_BINARY_IMAGE )->EnableWindow( TRUE );
+	//// 使按钮生效
+	GetDlgItem( IDC_DtBtn_SaveImage )->EnableWindow( TRUE );
+	GetDlgItem( IDC_DtBtn_Detect )->EnableWindow( TRUE );
+	GetDlgItem( IDC_DtBtn_OpenDir )->EnableWindow( TRUE );
 
 	SetTips(_T("已打开图片：") + strPath);
 }
@@ -245,4 +231,34 @@ void CDetectDlg::OnBnClickedDtbtnAbout()
 {
 	// TODO: 在此添加控件通知处理程序代码
 	ShellExecute(NULL,"open","http://www.liufu.org/ling",NULL,NULL,SW_SHOW); 
+}
+
+BOOL CDetectDlg::OnInitDialog()
+{
+	CDialog::OnInitDialog();
+
+	// TODO:  在此添加额外的初始化
+
+
+	//初始化ShowImage
+	CvSize imgSize;
+    imgSize.height = SHOWIMAGE_HEIGHT;
+    imgSize.width = SHOWIMAGE_WIDTH;
+	m_showImage = cvCreateImage( imgSize, IPL_DEPTH_8U, 3 );
+
+	//初始化配置文件
+	m_strCascadeName = m_objConfig.GetConfig(_T("Detect"), _T("CascadeName"));
+	if( m_strCascadeName == _T(""))
+	{
+		m_strCascadeName = _T("xml\\haarcascade_frontalface_alt_tree.xml");
+		m_objConfig.SetConfig(_T("Detect"), _T("CascadeName"), m_strCascadeName);
+	}
+
+	//使按钮失效
+	GetDlgItem( IDC_DtBtn_SaveImage )->EnableWindow( FALSE );
+	GetDlgItem( IDC_DtBtn_Detect )->EnableWindow( FALSE );
+	GetDlgItem( IDC_DtBtn_OpenDir )->EnableWindow( FALSE );
+
+	return TRUE;  // return TRUE unless you set the focus to a control
+	// 异常: OCX 属性页应返回 FALSE
 }
