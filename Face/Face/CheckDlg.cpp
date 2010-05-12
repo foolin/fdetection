@@ -137,7 +137,7 @@ void CCheckDlg::OnBnClickedCheckdlgOpenpicture()
 			return;
 		}
 		ShowImage( m_objCheck.m_ReadImage1,IDC_CheckDlg_Picture1);
-	//	cvReleaseImage( &m_objCheck.m_ReadImage1);
+		cvReleaseImage( &m_objCheck.m_ReadImage1);
 	}
 
 	if(picture_num%3==1)
@@ -149,7 +149,7 @@ void CCheckDlg::OnBnClickedCheckdlgOpenpicture()
 			return;
 		}
 		ShowImage( m_objCheck.m_ReadImage2,IDC_CheckDlg_Picture2);
-	//	cvReleaseImage( &m_objCheck.m_ReadImage2);
+		cvReleaseImage( &m_objCheck.m_ReadImage2);
 	}
 
 	if(picture_num%3==2)
@@ -161,7 +161,7 @@ void CCheckDlg::OnBnClickedCheckdlgOpenpicture()
 			return;
 		}
 		ShowImage( m_objCheck.m_ReadImage3,IDC_CheckDlg_Picture3);
-	//	cvReleaseImage( &m_objCheck.m_ReadImage3);
+		cvReleaseImage( &m_objCheck.m_ReadImage3);
 	//	picture_num=0;
 	}
     picture_num++;
