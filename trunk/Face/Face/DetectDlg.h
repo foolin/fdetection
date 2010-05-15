@@ -44,4 +44,5 @@ private:
 	CString m_strCascadeName;
 public:
 	virtual BOOL OnInitDialog();
+	afx_msg void OnPaint();
 };
