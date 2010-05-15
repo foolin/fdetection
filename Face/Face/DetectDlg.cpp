@@ -40,6 +40,7 @@ BEGIN_MESSAGE_MAP(CDetectDlg, CDialog)
 	ON_BN_CLICKED(IDC_DtBtn_SaveImage, &CDetectDlg::OnBnClickedDtbtnSaveimage)
 	ON_BN_CLICKED(IDC_DtBtn_Detect, &CDetectDlg::OnBnClickedDtbtnDetect)
 	ON_BN_CLICKED(IDC_DtBtn_About, &CDetectDlg::OnBnClickedDtbtnAbout)
+	ON_WM_PAINT()
 END_MESSAGE_MAP()
 
 
@@ -261,4 +262,16 @@ BOOL CDetectDlg::OnInitDialog()
 
 	return TRUE;  // return TRUE unless you set the focus to a control
 	// 异常: OCX 属性页应返回 FALSE
+}
+
+void CDetectDlg::OnPaint()
+{
+	//CPaintDC dc(this); // device context for painting
+	//// TODO: 在此处添加消息处理程序代码
+	//// 不为绘图消息调用 CDialog::OnPaint()
+    CDialog::OnPaint();                    // 重绘对话框
+    CDialog::UpdateWindow();                // 更新windows窗口，如果无这步调用，图片显示还会出现问题
+    //ShowImage( m_objDetect.m_pReadImage);    // 重绘图片函数
+	ShowImage( m_showImage, IDC_DtPc_ShowImage );		// 重绘图片函数
+
 }
