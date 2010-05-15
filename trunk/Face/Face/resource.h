@@ -23,9 +23,9 @@
 #define IDC_DtPc_ShowImage              1009
 #define IDC_CheckDlg_OpenPicture        1010
 #define IDC_CheckDlg_Picture1           1011
-#define IDC_CheckDlg_Picture2           1012
 #define IDC_CheckDlg_Picture3           1013
 #define IDC_CheckDlg_Tips               1014
+#define IDC_CheckDlg_Shell              1015
 
 // Next default values for new objects
 // 
@@ -33,7 +33,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        132
 #define _APS_NEXT_COMMAND_VALUE         32771
-#define _APS_NEXT_CONTROL_VALUE         1015
+#define _APS_NEXT_CONTROL_VALUE         1016
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

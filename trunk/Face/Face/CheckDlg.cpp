@@ -14,6 +14,7 @@ CCheckDlg::CCheckDlg(CWnd* pParent /*=NULL*/)
 	: CDialog(CCheckDlg::IDD, pParent)
 {
 	picture_num=0;
+	
 }
 
 CCheckDlg::~CCheckDlg()
@@ -28,6 +29,7 @@ void CCheckDlg::DoDataExchange(CDataExchange* pDX)
 
 BEGIN_MESSAGE_MAP(CCheckDlg, CDialog)
 	ON_BN_CLICKED(IDC_CheckDlg_OpenPicture, &CCheckDlg::OnBnClickedCheckdlgOpenpicture)
+	ON_BN_CLICKED(IDC_CheckDlg_Shell, &CCheckDlg::OnBnClickedCheckdlgShell)
 END_MESSAGE_MAP()
 
 
@@ -127,45 +129,85 @@ void CCheckDlg::OnBnClickedCheckdlgOpenpicture()
 	}
 	
 	CString strPath = dlg.GetPathName();			// 获取图片路径
-
-	if(picture_num%3==0)
+	
+	m_objCheck.m_ReadImage1=cvLoadImage(strPath,0);
+	if(!m_objCheck.m_ReadImage1)
 	{
-		m_objCheck.m_ReadImage1=cvLoadImage(strPath,0);
-		if(!m_objCheck.m_ReadImage1)
-		{
-			MessageBox(_T("无法打开图片"));
-			return;
-		}
-		ShowImage( m_objCheck.m_ReadImage1,IDC_CheckDlg_Picture1);
-		cvReleaseImage( &m_objCheck.m_ReadImage1);
+		MessageBox(_T("无法打开图片"));
+		return;
 	}
-
-	if(picture_num%3==1)
-	{
-		m_objCheck.m_ReadImage2=cvLoadImage(strPath,0);
-		if(!m_objCheck.m_ReadImage2)
-		{
-			MessageBox(_T("无法打开图片"));
-			return;
-		}
-		ShowImage( m_objCheck.m_ReadImage2,IDC_CheckDlg_Picture2);
-		cvReleaseImage( &m_objCheck.m_ReadImage2);
-	}
-
-	if(picture_num%3==2)
-	{
-		m_objCheck.m_ReadImage3=cvLoadImage(strPath,0);
-		if(!m_objCheck.m_ReadImage3)
-		{
-			MessageBox(_T("无法打开图片"));
-			return;
-		}
-		ShowImage( m_objCheck.m_ReadImage3,IDC_CheckDlg_Picture3);
-		cvReleaseImage( &m_objCheck.m_ReadImage3);
-	//	picture_num=0;
-	}
-    picture_num++;
-
+	ShowImage( m_objCheck.m_ReadImage1,IDC_CheckDlg_Picture1);
+	cvReleaseImage( &m_objCheck.m_ReadImage1);
+	
 //	SetTips(_T("已打开图片：") + strPath);
 	MessageBox(_T("已打开图片"));
+	UpdateData(TRUE);
+}
+
+void CCheckDlg::OnBnClickedCheckdlgShell()
+{
+	// TODO: 在此添加控件通知处理程序代码
+  //  ShellExecute(NULL,"open","D:\\Backup\\我的文档\\Visual Studio 2008\\Projects\\test1\\Debug\\test1.exe",NULL,NULL,SW_SHOWNORMAL); 
+	
+	/*for(int i=0;i<8;i++)
+	{
+	//	if(unsort[i].number==8&&i==7)
+			MessageBox(_T("发现陌生人!"));
+	}*/
+	bool checkflag1,checkflag2,checkflag3;
+	DataField tempcheck;
+	tempcheck=m_objCheck.Data("Faces/人脸库/01/3.jpg",8);
+	checkflag1=m_objCheck.SecondData(m_objCheck.temp1,tempcheck);
+	checkflag2=m_objCheck.SecondData(m_objCheck.temp2,tempcheck);
+	checkflag3=m_objCheck.SecondData(m_objCheck.temp3,tempcheck);
+
+	if(checkflag1&&checkflag2&&checkflag3)
+		MessageBox(_T("有陌生人!"));
+	else
+		MessageBox(_T("不是陌生人!"));
+//	getchar();
+
+}
+
+BOOL CCheckDlg::OnInitDialog()
+{
+	CDialog::OnInitDialog();
+
+	// TODO:  在此添加额外的初始化
+
+for(int i=0;i<8;i++)
+	{
+		m_objCheck.temp1[i].number=0;
+		m_objCheck.temp1[i].value=0;
+		m_objCheck.temp1[i].x=0;
+		m_objCheck.temp1[i].y=0;
+	}
+	//初始化，算出人脸库中第一个人的数据场，求出相应的局部极值，并完成坐标融合
+	m_objCheck.temp1[0]=m_objCheck.Data("Faces/人脸库/01/1.jpg",1);
+	m_objCheck.temp1[1]=m_objCheck.Data("Faces/人脸库/01/2.jpg",2);
+	m_objCheck.temp1[2]=m_objCheck.Data("Faces/人脸库/01/3.jpg",3);
+	m_objCheck.temp1[3]=m_objCheck.Data("Faces/人脸库/01/4.jpg",4);
+	m_objCheck.temp1[4]=m_objCheck.Data("Faces/人脸库/01/5.jpg",5);
+	m_objCheck.temp1[5]=m_objCheck.Data("Faces/人脸库/01/6.jpg",6);
+	m_objCheck.temp1[6]=m_objCheck.Data("Faces/人脸库/01/7.jpg",7);
+	//初始化，算出人脸库中第二个人的数据场，求出相应的局部极值，并完成坐标融合
+	m_objCheck.temp2[0]=m_objCheck.Data("Faces/人脸库/02/1.jpg",1);
+	m_objCheck.temp2[1]=m_objCheck.Data("Faces/人脸库/02/2.jpg",2);
+	m_objCheck.temp2[2]=m_objCheck.Data("Faces/人脸库/02/3.jpg",3);
+	m_objCheck.temp2[3]=m_objCheck.Data("Faces/人脸库/02/4.jpg",4);
+	m_objCheck.temp2[4]=m_objCheck.Data("Faces/人脸库/02/5.jpg",5);
+	m_objCheck.temp2[5]=m_objCheck.Data("Faces/人脸库/02/6.jpg",6);
+	m_objCheck.temp2[6]=m_objCheck.Data("Faces/人脸库/02/7.jpg",7);
+	//初始化，算出人脸库中第三个人的数据场，求出相应的局部极值，并完成坐标融合
+	m_objCheck.temp3[0]=m_objCheck.Data("Faces/人脸库/04/1.jpg",1);
+	m_objCheck.temp3[1]=m_objCheck.Data("Faces/人脸库/04/2.jpg",2);
+	m_objCheck.temp3[2]=m_objCheck.Data("Faces/人脸库/04/3.jpg",3);
+	m_objCheck.temp3[3]=m_objCheck.Data("Faces/人脸库/04/4.jpg",4);
+	m_objCheck.temp3[4]=m_objCheck.Data("Faces/人脸库/04/5.jpg",5);
+	m_objCheck.temp3[5]=m_objCheck.Data("Faces/人脸库/04/6.jpg",6);
+	m_objCheck.temp3[6]=m_objCheck.Data("Faces/人脸库/04/7.jpg",7);
+
+
+	return TRUE;  // return TRUE unless you set the focus to a control
+	// 异常: OCX 属性页应返回 FALSE
 }
