@@ -8,6 +8,7 @@
 #include "DetectDlg.h"
 #include "CheckDlg.h"
 #include "ComposeDlg.h"
+#include "Config.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -102,6 +103,14 @@ BOOL CFaceDlg::OnInitDialog()
 	SetIcon(m_hIcon, FALSE);		// 设置小图标
 
 	// TODO: 在此添加额外的初始化代码
+
+	//初始化程序路径
+	CString strAppPath;
+	GetCurrentDirectory(MAX_PATH,strAppPath.GetBuffer(MAX_PATH));
+	strAppPath.ReleaseBuffer();
+	//Config
+	CConfig config;
+	config.SetConfig("AppPath", strAppPath);
 
 	return TRUE;  // 除非将焦点设置到控件，否则返回 TRUE
 }
