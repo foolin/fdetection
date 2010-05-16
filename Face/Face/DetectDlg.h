@@ -45,4 +45,6 @@ private:
 public:
 	virtual BOOL OnInitDialog();
 	afx_msg void OnPaint();
+	// ³ÌÐòÂ·¾¶
+	CString m_strAppPath;
 };
