@@ -13,6 +13,7 @@ IMPLEMENT_DYNAMIC(CDetectDlg, CDialog)
 CDetectDlg::CDetectDlg(CWnd* pParent /*=NULL*/)
 	: CDialog(CDetectDlg::IDD, pParent)
 	//, m_showImage(NULL)
+	, m_strAppPath(_T(""))
 {
 	
 
@@ -193,6 +194,11 @@ void CDetectDlg::OnBnClickedDtbtnSaveimage()
 void CDetectDlg::OnBnClickedDtbtnDetect()
 {
 	// TODO: 在此添加控件通知处理程序代码
+		//重置默认目录，解决xml路径不正确问题
+	if(m_strAppPath != _T(""))
+	{
+		SetCurrentDirectory(m_strAppPath);
+	}
 	if(m_objDetect.FaceDetect(m_strCascadeName))
 	{
 		//显示图像
@@ -248,6 +254,7 @@ BOOL CDetectDlg::OnInitDialog()
 	m_showImage = cvCreateImage( imgSize, IPL_DEPTH_8U, 3 );
 
 	//初始化配置文件
+	m_strAppPath = m_objConfig.GetConfig(_T("AppPath"));
 	m_strCascadeName = m_objConfig.GetConfig(_T("Detect"), _T("CascadeName"));
 	if( m_strCascadeName == _T(""))
 	{
