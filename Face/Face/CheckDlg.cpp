@@ -183,29 +183,29 @@ for(int i=0;i<8;i++)
 		m_objCheck.temp1[i].y=0;
 	}
 	//初始化，算出人脸库中第一个人的数据场，求出相应的局部极值，并完成坐标融合
-	m_objCheck.temp1[0]=m_objCheck.Data("Faces/人脸库/01/1.jpg",1);
-	m_objCheck.temp1[1]=m_objCheck.Data("Faces/人脸库/01/2.jpg",2);
-	m_objCheck.temp1[2]=m_objCheck.Data("Faces/人脸库/01/3.jpg",3);
-	m_objCheck.temp1[3]=m_objCheck.Data("Faces/人脸库/01/4.jpg",4);
-	m_objCheck.temp1[4]=m_objCheck.Data("Faces/人脸库/01/5.jpg",5);
-	m_objCheck.temp1[5]=m_objCheck.Data("Faces/人脸库/01/6.jpg",6);
-	m_objCheck.temp1[6]=m_objCheck.Data("Faces/人脸库/01/7.jpg",7);
+	m_objCheck.temp1[0]=m_objCheck.Data("Faces/lib/01/1.jpg",1);
+	m_objCheck.temp1[1]=m_objCheck.Data("Faces/lib/01/2.jpg",2);
+	m_objCheck.temp1[2]=m_objCheck.Data("Faces/lib/01/3.jpg",3);
+	m_objCheck.temp1[3]=m_objCheck.Data("Faces/lib/01/4.jpg",4);
+	m_objCheck.temp1[4]=m_objCheck.Data("Faces/lib/01/5.jpg",5);
+	m_objCheck.temp1[5]=m_objCheck.Data("Faces/lib/01/6.jpg",6);
+	m_objCheck.temp1[6]=m_objCheck.Data("Faces/lib/01/7.jpg",7);
 	//初始化，算出人脸库中第二个人的数据场，求出相应的局部极值，并完成坐标融合
-	m_objCheck.temp2[0]=m_objCheck.Data("Faces/人脸库/02/1.jpg",1);
-	m_objCheck.temp2[1]=m_objCheck.Data("Faces/人脸库/02/2.jpg",2);
-	m_objCheck.temp2[2]=m_objCheck.Data("Faces/人脸库/02/3.jpg",3);
-	m_objCheck.temp2[3]=m_objCheck.Data("Faces/人脸库/02/4.jpg",4);
-	m_objCheck.temp2[4]=m_objCheck.Data("Faces/人脸库/02/5.jpg",5);
-	m_objCheck.temp2[5]=m_objCheck.Data("Faces/人脸库/02/6.jpg",6);
-	m_objCheck.temp2[6]=m_objCheck.Data("Faces/人脸库/02/7.jpg",7);
+	m_objCheck.temp2[0]=m_objCheck.Data("Faces/lib/02/1.jpg",1);
+	m_objCheck.temp2[1]=m_objCheck.Data("Faces/lib/02/2.jpg",2);
+	m_objCheck.temp2[2]=m_objCheck.Data("Faces/lib/02/3.jpg",3);
+	m_objCheck.temp2[3]=m_objCheck.Data("Faces/lib/02/4.jpg",4);
+	m_objCheck.temp2[4]=m_objCheck.Data("Faces/lib/02/5.jpg",5);
+	m_objCheck.temp2[5]=m_objCheck.Data("Faces/lib/02/6.jpg",6);
+	m_objCheck.temp2[6]=m_objCheck.Data("Faces/lib/02/7.jpg",7);
 	//初始化，算出人脸库中第三个人的数据场，求出相应的局部极值，并完成坐标融合
-	m_objCheck.temp3[0]=m_objCheck.Data("Faces/人脸库/04/1.jpg",1);
-	m_objCheck.temp3[1]=m_objCheck.Data("Faces/人脸库/04/2.jpg",2);
-	m_objCheck.temp3[2]=m_objCheck.Data("Faces/人脸库/04/3.jpg",3);
-	m_objCheck.temp3[3]=m_objCheck.Data("Faces/人脸库/04/4.jpg",4);
-	m_objCheck.temp3[4]=m_objCheck.Data("Faces/人脸库/04/5.jpg",5);
-	m_objCheck.temp3[5]=m_objCheck.Data("Faces/人脸库/04/6.jpg",6);
-	m_objCheck.temp3[6]=m_objCheck.Data("Faces/人脸库/04/7.jpg",7);
+	m_objCheck.temp3[0]=m_objCheck.Data("Faces/lib/04/1.jpg",1);
+	m_objCheck.temp3[1]=m_objCheck.Data("Faces/lib/04/2.jpg",2);
+	m_objCheck.temp3[2]=m_objCheck.Data("Faces/lib/04/3.jpg",3);
+	m_objCheck.temp3[3]=m_objCheck.Data("Faces/lib/04/4.jpg",4);
+	m_objCheck.temp3[4]=m_objCheck.Data("Faces/lib/04/5.jpg",5);
+	m_objCheck.temp3[5]=m_objCheck.Data("Faces/lib/04/6.jpg",6);
+	m_objCheck.temp3[6]=m_objCheck.Data("Faces/lib/04/7.jpg",7);
 
 
 	return TRUE;  // return TRUE unless you set the focus to a control
