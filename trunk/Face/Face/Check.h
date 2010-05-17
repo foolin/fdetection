@@ -60,12 +60,13 @@ public:
 	//自己：
 public:
 	
-	DataField Data(char* name,int num);	//创建数据场，求出该图像的局部极值，并完成坐标融合
+	DataField Data(CString name,int num);	//创建数据场，求出该图像的局部极值，并完成坐标融合
 	void BubbleSort(DataField *a,int n);	//冒泡排序，对DataField类型的数组进行降序排序
 	bool SecondData(DataField *a,DataField tempcheck);	//构建二次数据场，找出离群点
 	DataField temp1[8];				//存放人脸库中第一个样本对象及待测对象
 	DataField temp2[8];				//存放人脸库中第二个样本对象及待测对象
 	DataField temp3[8];				//存放人脸库中第三个样本对象及待测对象
+	DataField tempcheck;			//存放陌生人特征点数据
 
 
 };

@@ -128,9 +128,10 @@ BEGIN
     DEFPUSHBUTTON   "确定",IDOK,205,236,50,14
     PUSHBUTTON      "取消",IDCANCEL,324,236,50,14
     CONTROL         "",IDC_CheckDlg_Picture1,"Static",SS_BLACKFRAME,109,28,90,89
-    PUSHBUTTON      "打开图片",IDC_CheckDlg_OpenPicture,280,29,56,22
+    PUSHBUTTON      "打开图片",IDC_CheckDlg_OpenPicture,282,81,56,22
     LTEXT           "",IDC_CheckDlg_Tips,21,117,87,37
-    PUSHBUTTON      "开始识别",IDC_CheckDlg_Shell,283,117,54,25
+    PUSHBUTTON      "开始识别",IDC_CheckDlg_Shell,283,128,55,23
+    PUSHBUTTON      "加载人脸库",IDC_CheckDlg_AddFace,283,41,53,25
 END
 
 IDD_ComposeDlg DIALOGEX 0, 0, 316, 183
