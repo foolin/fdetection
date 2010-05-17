@@ -11,12 +11,12 @@
 
 
 //图片的最大规格
-#define IMAGE_MAX_WIDTH 800			//图片最大
-#define IMAGE_MAX_HEIGHT 800
+#define IMAGE_MAX_WIDTH 1000			//图片最大
+#define IMAGE_MAX_HEIGHT 1000
 
 //人脸图像的规格
-#define FACE_WIDTH 256			//人脸大小
-#define FACE_HEIGHT 256
+#define FACE_WIDTH 128			//人脸大小
+#define FACE_HEIGHT 128
 
 //读取图像
 #define IMAGE_READ_DEPTH IPL_DEPTH_8U
