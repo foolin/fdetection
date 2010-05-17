@@ -284,7 +284,7 @@ bool CCheck::SecondData(DataField *a,DataField tempcheck)//a为样本对象，tempchec
 	//若排序后，待测对象仍排在数组的末尾，则说明该对象在二次数据场中势值最小，且为离群点
 	for(int i=0;i<8;i++)
 	{
-		if(unsort[i].number==8&&i==7&&(unsort[6].value-unsort[7].value)>2)
+		if(unsort[i].number==8&&i==7&&(unsort[6].value-unsort[7].value)>5)
 			flag=true;
 	}
 	return flag;
