@@ -160,6 +160,12 @@ void CDetectDlg::OnBnClickedDtbtnOpenimage()
 	GetDlgItem( IDC_DtBtn_OpenDir )->EnableWindow( TRUE );
 
 	SetTips(_T("已打开图片：") + strPath);
+
+	//重置默认目录，解决xml路径不正确问题
+	if(m_strAppPath != _T(""))
+	{
+		SetCurrentDirectory(m_strAppPath);
+	}
 }
 
 
@@ -186,6 +192,12 @@ void CDetectDlg::OnBnClickedDtbtnSaveimage()
 	if(MessageBox(_T("已经保存，是否打开所在文件夹？"), _T("温馨提示"), MB_OKCANCEL) == IDOK)
 	{
 		 ShellExecute(NULL,NULL,strDir,NULL,NULL,SW_SHOW);
+	}
+
+	//重置默认目录，解决xml路径不正确问题
+	if(m_strAppPath != _T(""))
+	{
+		SetCurrentDirectory(m_strAppPath);
 	}
 }
 
