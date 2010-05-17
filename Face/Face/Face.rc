@@ -132,6 +132,8 @@ BEGIN
     LTEXT           "",IDC_CheckDlg_Tips,21,117,87,37
     PUSHBUTTON      "开始识别",IDC_CheckDlg_Shell,283,128,55,23
     PUSHBUTTON      "加载人脸库",IDC_CheckDlg_AddFace,283,41,53,25
+    CONTROL         "",IDC_CheckDlg_PROGRESS,"msctls_progress32",WS_BORDER,91,134,142,14
+    LTEXT           "",IDC_ChedkDlg_Tip,92,154,110,17
 END
 
 IDD_ComposeDlg DIALOGEX 0, 0, 316, 183

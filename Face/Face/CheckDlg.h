@@ -2,6 +2,8 @@
 #include "Config.h"
 #include "Check.h"
 #include "Detect.h"
+#include "afxcmn.h"
+#include "afxwin.h"
 
 #define SHOWIMAGE_WIDTH 128		//œ‘ æÕº∆¨¥Û–°
 #define SHOWIMAGE_HEIGHT 128	
@@ -44,4 +46,6 @@ public:
 	afx_msg void OnBnClickedCheckdlgShell();
 	virtual BOOL OnInitDialog();
 	afx_msg void OnBnClickedCheckdlgAddface();
+	CProgressCtrl m_AddFaceProgress;
+	CStatic m_AddFacesTips;
 };

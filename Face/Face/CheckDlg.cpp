@@ -27,6 +27,8 @@ CCheckDlg::~CCheckDlg()
 void CCheckDlg::DoDataExchange(CDataExchange* pDX)
 {
 	CDialog::DoDataExchange(pDX);
+	DDX_Control(pDX, IDC_CheckDlg_PROGRESS, m_AddFaceProgress);
+	DDX_Control(pDX, IDC_ChedkDlg_Tip, m_AddFacesTips);
 }
 
 
@@ -83,33 +85,61 @@ void CCheckDlg::OnBnClickedCheckdlgAddface()
 			m_objCheck.temp1[i].x=0;
 			m_objCheck.temp1[i].y=0;
 		}
+		
+		m_AddFacesTips.ShowWindow(1);
+		m_AddFacesTips.SetWindowTextA("正在加载人脸库，请稍后...");
+		m_AddFaceProgress.ShowWindow(1);
+		m_AddFaceProgress.SetRange(0,21);
 		//初始化，算出人脸库中第一个人的数据场，求出相应的局部极值，并完成坐标融合
 		m_objCheck.temp1[0]=m_objCheck.Data("Faces/lib/01/1.jpg",1);
+		m_AddFaceProgress.SetPos(1);
 		m_objCheck.temp1[1]=m_objCheck.Data("Faces/lib/01/2.jpg",2);
+		m_AddFaceProgress.SetPos(2);
 		m_objCheck.temp1[2]=m_objCheck.Data("Faces/lib/01/3.jpg",3);
+		m_AddFaceProgress.SetPos(3);
 		m_objCheck.temp1[3]=m_objCheck.Data("Faces/lib/01/4.jpg",4);
+		m_AddFaceProgress.SetPos(4);
 		m_objCheck.temp1[4]=m_objCheck.Data("Faces/lib/01/5.jpg",5);
+		m_AddFaceProgress.SetPos(5);
 		m_objCheck.temp1[5]=m_objCheck.Data("Faces/lib/01/6.jpg",6);
+		m_AddFaceProgress.SetPos(6);
 		m_objCheck.temp1[6]=m_objCheck.Data("Faces/lib/01/7.jpg",7);
+		m_AddFaceProgress.SetPos(7);
 		//初始化，算出人脸库中第二个人的数据场，求出相应的局部极值，并完成坐标融合
 		m_objCheck.temp2[0]=m_objCheck.Data("Faces/lib/02/1.jpg",1);
+		m_AddFaceProgress.SetPos(8);
 		m_objCheck.temp2[1]=m_objCheck.Data("Faces/lib/02/2.jpg",2);
+		m_AddFaceProgress.SetPos(9);
 		m_objCheck.temp2[2]=m_objCheck.Data("Faces/lib/02/3.jpg",3);
+		m_AddFaceProgress.SetPos(10);
 		m_objCheck.temp2[3]=m_objCheck.Data("Faces/lib/02/4.jpg",4);
+		m_AddFaceProgress.SetPos(11);
 		m_objCheck.temp2[4]=m_objCheck.Data("Faces/lib/02/5.jpg",5);
+		m_AddFaceProgress.SetPos(12);
 		m_objCheck.temp2[5]=m_objCheck.Data("Faces/lib/02/6.jpg",6);
+		m_AddFaceProgress.SetPos(13);
 		m_objCheck.temp2[6]=m_objCheck.Data("Faces/lib/02/7.jpg",7);
+		m_AddFaceProgress.SetPos(14);
 		//初始化，算出人脸库中第三个人的数据场，求出相应的局部极值，并完成坐标融合
 		m_objCheck.temp3[0]=m_objCheck.Data("Faces/lib/04/1.jpg",1);
+		m_AddFaceProgress.SetPos(15);
 		m_objCheck.temp3[1]=m_objCheck.Data("Faces/lib/04/2.jpg",2);
+		m_AddFaceProgress.SetPos(16);
 		m_objCheck.temp3[2]=m_objCheck.Data("Faces/lib/04/3.jpg",3);
+		m_AddFaceProgress.SetPos(17);
 		m_objCheck.temp3[3]=m_objCheck.Data("Faces/lib/04/4.jpg",4);
+		m_AddFaceProgress.SetPos(18);
 		m_objCheck.temp3[4]=m_objCheck.Data("Faces/lib/04/5.jpg",5);
+		m_AddFaceProgress.SetPos(19);
 		m_objCheck.temp3[5]=m_objCheck.Data("Faces/lib/04/6.jpg",6);
+		m_AddFaceProgress.SetPos(20);
 		m_objCheck.temp3[6]=m_objCheck.Data("Faces/lib/04/7.jpg",7);
+		m_AddFaceProgress.SetPos(21);
 		
 		IsAddFace=true;
 		MessageBox(_T("加载完成！"));
+		m_AddFacesTips.ShowWindow(0);
+		m_AddFaceProgress.ShowWindow(0);
 	}
 	else
 		MessageBox(_T("人脸库已经加载！"));
@@ -184,7 +214,8 @@ BOOL CCheckDlg::OnInitDialog()
 {
 	CDialog::OnInitDialog();
 	// TODO:  在此添加额外的初始化	return TRUE;  
-
+	m_AddFaceProgress.ShowWindow(0);
+	
 	//获取当前程序目录
 	m_strAppPath = m_objConfig.GetConfig("AppPath");
 	
