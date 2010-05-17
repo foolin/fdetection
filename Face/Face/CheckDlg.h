@@ -39,8 +39,9 @@ private:
 	CCheck  m_objCheck; 
 	CDetect m_objDetect;
 	CConfig m_objConfig;
-	CString m_strCascadeName;
+	CString m_strAppPath;
 public:
 	afx_msg void OnBnClickedCheckdlgShell();
 	virtual BOOL OnInitDialog();
+	afx_msg void OnBnClickedCheckdlgAddface();
 };

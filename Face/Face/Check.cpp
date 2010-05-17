@@ -81,7 +81,7 @@ void CCheck::BubbleSort(DataField *a,int n)
 	}	
 }
 
-DataField CCheck:: Data(char* name,int num) 
+DataField CCheck:: Data(CString name,int num) 
 { 
  
     const char* imagename = name;
@@ -131,7 +131,7 @@ DataField CCheck:: Data(char* name,int num)
 		local_max_point[i].y=0;
 	}
 
-    //图像像素按列归一到[0,1]
+    //图像像素按行归一到[0,1]
 	double * picture_mat=new double [height*width];
 	for(y=0;y<height;y++)
 	{

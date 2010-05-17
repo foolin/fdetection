@@ -4,6 +4,8 @@
 #include "stdafx.h"
 #include "Face.h"
 #include "CheckDlg.h"
+#include "string.h"
+#include "Config.h"
 
 
 // CCheckDlg 对话框
@@ -30,6 +32,7 @@ void CCheckDlg::DoDataExchange(CDataExchange* pDX)
 BEGIN_MESSAGE_MAP(CCheckDlg, CDialog)
 	ON_BN_CLICKED(IDC_CheckDlg_OpenPicture, &CCheckDlg::OnBnClickedCheckdlgOpenpicture)
 	ON_BN_CLICKED(IDC_CheckDlg_Shell, &CCheckDlg::OnBnClickedCheckdlgShell)
+	ON_BN_CLICKED(IDC_CheckDlg_AddFace, &CCheckDlg::OnBnClickedCheckdlgAddface)
 END_MESSAGE_MAP()
 
 
@@ -115,67 +118,19 @@ void CCheckDlg::SetTips( CString strTips)
 // CCheckDlg 消息处理程序
 
 
-void CCheckDlg::OnBnClickedCheckdlgOpenpicture()
+
+void CCheckDlg::OnBnClickedCheckdlgAddface()
 {
 	// TODO: 在此添加控件通知处理程序代码
-	CFileDialog dlg( TRUE, _T("*.bmp"), NULL,
-					OFN_FILEMUSTEXIST | OFN_PATHMUSTEXIST | OFN_HIDEREADONLY,
-					_T("image files (*.bmp; *.jpg; *.tiff) |*.bmp; *.jpg; *.tiff| All Files (*.*) |*.*||"),
-					NULL );										// 选项图片的约定
-	dlg.m_ofn.lpstrTitle = _T("打开图片");	// 打开文件对话框的标题名
-	if( dlg.DoModal() != IDOK )				// 判断是否获得图片
+	
+	//设置程序默认路径
+	if(m_strAppPath != _T(""))
 	{
-		return;
+		SetCurrentDirectory(m_strAppPath);
 	}
-	
-	CString strPath = dlg.GetPathName();			// 获取图片路径
-	
-	m_objCheck.m_ReadImage1=cvLoadImage(strPath,0);
-	if(!m_objCheck.m_ReadImage1)
-	{
-		MessageBox(_T("无法打开图片"));
-		return;
-	}
-	ShowImage( m_objCheck.m_ReadImage1,IDC_CheckDlg_Picture1);
-	cvReleaseImage( &m_objCheck.m_ReadImage1);
-	
-//	SetTips(_T("已打开图片：") + strPath);
-	MessageBox(_T("已打开图片"));
-	UpdateData(TRUE);
-}
 
-void CCheckDlg::OnBnClickedCheckdlgShell()
-{
-	// TODO: 在此添加控件通知处理程序代码
-  //  ShellExecute(NULL,"open","D:\\Backup\\我的文档\\Visual Studio 2008\\Projects\\test1\\Debug\\test1.exe",NULL,NULL,SW_SHOWNORMAL); 
-	
-	/*for(int i=0;i<8;i++)
-	{
-	//	if(unsort[i].number==8&&i==7)
-			MessageBox(_T("发现陌生人!"));
-	}*/
-	bool checkflag1,checkflag2,checkflag3;
-	DataField tempcheck;
-	tempcheck=m_objCheck.Data("Faces/人脸库/01/3.jpg",8);
-	checkflag1=m_objCheck.SecondData(m_objCheck.temp1,tempcheck);
-	checkflag2=m_objCheck.SecondData(m_objCheck.temp2,tempcheck);
-	checkflag3=m_objCheck.SecondData(m_objCheck.temp3,tempcheck);
 
-	if(checkflag1&&checkflag2&&checkflag3)
-		MessageBox(_T("有陌生人!"));
-	else
-		MessageBox(_T("不是陌生人!"));
-//	getchar();
-
-}
-
-BOOL CCheckDlg::OnInitDialog()
-{
-	CDialog::OnInitDialog();
-
-	// TODO:  在此添加额外的初始化
-
-for(int i=0;i<8;i++)
+	 for(int i=0;i<8;i++)
 	{
 		m_objCheck.temp1[i].number=0;
 		m_objCheck.temp1[i].value=0;
@@ -206,8 +161,79 @@ for(int i=0;i<8;i++)
 	m_objCheck.temp3[4]=m_objCheck.Data("Faces/lib/04/5.jpg",5);
 	m_objCheck.temp3[5]=m_objCheck.Data("Faces/lib/04/6.jpg",6);
 	m_objCheck.temp3[6]=m_objCheck.Data("Faces/lib/04/7.jpg",7);
+	MessageBox(_T("加载完成！"));
+}
 
 
-	return TRUE;  // return TRUE unless you set the focus to a control
+void CCheckDlg::OnBnClickedCheckdlgOpenpicture()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	CFileDialog dlg( TRUE, _T("*.bmp"), NULL,
+					OFN_FILEMUSTEXIST | OFN_PATHMUSTEXIST | OFN_HIDEREADONLY,
+					_T("image files (*.bmp; *.jpg; *.tiff) |*.bmp; *.jpg; *.tiff| All Files (*.*) |*.*||"),
+					NULL );										// 选项图片的约定
+	dlg.m_ofn.lpstrTitle = _T("打开图片");	// 打开文件对话框的标题名
+	if( dlg.DoModal() != IDOK )				// 判断是否获得图片
+	{
+		return;
+	}
+	
+	CString strPath = dlg.GetPathName();			// 获取图片路径
+	
+	m_objCheck.m_ReadImage1=cvLoadImage(strPath,0);
+//  str=CString.Format("%s", strPath);
+	
+	if(!m_objCheck.m_ReadImage1)
+	{
+		MessageBox(_T("无法打开图片"));
+		return;
+	}
+	ShowImage( m_objCheck.m_ReadImage1,IDC_CheckDlg_Picture1);
+	cvReleaseImage( &m_objCheck.m_ReadImage1);
+	//string s(CString.GetBuffer());
+	//char * p = string.c_str();
+	m_objCheck.tempcheck=m_objCheck.Data(strPath,8);
+	
+//	SetTips(_T("已打开图片：") + strPath);
+	MessageBox(_T("已打开图片"));
+	UpdateData(TRUE);
+
+
+	//设置程序默认路径
+	if(m_strAppPath != _T(""))
+	{
+		SetCurrentDirectory(m_strAppPath);
+	}
+
+}
+
+void CCheckDlg::OnBnClickedCheckdlgShell()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	
+	bool checkflag1,checkflag2,checkflag3;
+	//DataField tempcheck;
+	//tempcheck=m_objCheck.Data("Faces/lib/01/2.jpg",8);
+	checkflag1=m_objCheck.SecondData(m_objCheck.temp1,m_objCheck.tempcheck);
+	checkflag2=m_objCheck.SecondData(m_objCheck.temp2,m_objCheck.tempcheck);
+	checkflag3=m_objCheck.SecondData(m_objCheck.temp3,m_objCheck.tempcheck);
+   
+	if(checkflag1&&checkflag2&&checkflag3)
+		MessageBox(_T("有陌生人!"));
+	else
+		MessageBox(_T("不是陌生人!"));
+}
+
+BOOL CCheckDlg::OnInitDialog()
+{
+	CDialog::OnInitDialog();
+
+	// TODO:  在此添加额外的初始化	return TRUE;  
+	
+	//获取当前程序目录
+	m_strAppPath = m_objConfig.GetConfig("AppPath");
+	
+
 	// 异常: OCX 属性页应返回 FALSE
+	return true;
 }
