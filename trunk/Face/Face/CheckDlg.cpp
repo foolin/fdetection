@@ -15,7 +15,8 @@ IMPLEMENT_DYNAMIC(CCheckDlg, CDialog)
 CCheckDlg::CCheckDlg(CWnd* pParent /*=NULL*/)
 	: CDialog(CCheckDlg::IDD, pParent)
 {
-	picture_num=0;
+	IsAddFace=false;
+	IsOpen=false;
 	
 }
 
@@ -37,17 +38,6 @@ END_MESSAGE_MAP()
 
 
 //´¦Àíº¯Êı
-
-void CCheckDlg::ShowImage( IplImage* srcImage)	//ÏÔÊ¾Í¼Ïñ£¬°üÀ¨ËõĞ¡Í¼Ïñ
-{
-//	IplImage* img = cvCreateImage( cvGetSize( srcImage), srcImage->depth, srcImage->nChannels);
-//	cvCopy( srcImage, img, NULL);
-//	ResizeImage(img);	//Í¼Æ¬½øĞĞËõ·Å
-	ResizeImage(srcImage);	//Í¼Æ¬½øĞĞËõ·Å
-	ShowImage( m_showImage, IDC_DtPc_ShowImage );			// µ÷ÓÃÏÔÊ¾Í¼Æ¬º¯Êı	
-//	cvReleaseImage( &img);
-
-}
 
 void CCheckDlg::ShowImage( IplImage* img, UINT ID )	// ID ÊÇPicture Control¿Ø¼şµÄIDºÅ
 {
@@ -71,169 +61,133 @@ void CCheckDlg::ShowImage( IplImage* img, UINT ID )	// ID ÊÇPicture Control¿Ø¼şµ
 	ReleaseDC( pDC );
 }
 
-
-void CCheckDlg::ResizeImage(IplImage* img)
-{
-	// ¶ÁÈ¡Í¼Æ¬µÄ¿íºÍ¸ß
-    int w = img->width;
-	int h = img->height;
-
-	// ÕÒ³ö¿íºÍ¸ßÖĞµÄ½Ï´óÖµÕß
-	int max = (w > h)? w: h;
-	int maxDef = (SHOWIMAGE_WIDTH > SHOWIMAGE_HEIGHT)? SHOWIMAGE_WIDTH : SHOWIMAGE_HEIGHT;
-
-	// ¼ÆËã½«Í¼Æ¬Ëõ·Åµ½m_showImageÇøÓòËùĞèµÄ±ÈÀıÒò×Ó
-	float scale = (float) ( (float) max / maxDef);
-	
-	// Ëõ·ÅºóÍ¼Æ¬µÄ¿íºÍ¸ß
-	int nw = (int)( w/scale );
-	int nh = (int)( h/scale );
-
-	// ÎªÁË½«Ëõ·ÅºóµÄÍ¼Æ¬´æÈë m_showImage µÄÕıÖĞ²¿Î»£¬Ğè¼ÆËãÍ¼Æ¬ÔÚ m_showImage ×óÉÏ½ÇµÄÆÚÍû×ø±êÖµ
-	int tlx = (nw > nh)? 0: (int)(SHOWIMAGE_WIDTH - nw) / 2;
-	int tly = (nw > nh)? (int)(SHOWIMAGE_HEIGHT - nh) / 2 : 0;
-
-	// ¶ÔÉÏÒ»·ùÏÔÊ¾µÄÍ¼Æ¬Êı¾İÇåÁã
-	if( m_showImage )
-	{
-		cvZero( m_showImage );
-	}
-
-	// ÉèÖÃ TheImage µÄ ROI ÇøÓò£¬ÓÃÀ´´æÈëÍ¼Æ¬ img
-	cvSetImageROI( m_showImage, cvRect( tlx, tly, nw, nh) );
-	// ¶ÔÍ¼Æ¬ img ½øĞĞËõ·Å£¬²¢´æÈëµ½ m_showImage ÖĞ
-	cvResize( img, m_showImage );
-	// ÖØÖÃ TheImage µÄ ROI ×¼±¸¶ÁÈëÏÂÒ»·ùÍ¼Æ¬
-	cvResetImageROI( m_showImage );
-}
-
-
-//ÉèÖÃÏûÏ¢ÌáÊ¾
-void CCheckDlg::SetTips( CString strTips)
-{
-	GetDlgItem( IDC_CheckDlg_Tips )->SetWindowText( strTips );
-}
-
-
 // CCheckDlg ÏûÏ¢´¦Àí³ÌĞò
 
 
-
+//¼ÓÔØÈËÁ³¿âº¯Êı
 void CCheckDlg::OnBnClickedCheckdlgAddface()
 {
 	// TODO: ÔÚ´ËÌí¼Ó¿Ø¼şÍ¨Öª´¦Àí³ÌĞò´úÂë
-	
-	//ÉèÖÃ³ÌĞòÄ¬ÈÏÂ·¾¶
-	if(m_strAppPath != _T(""))
+	if(!IsAddFace)
 	{
-		SetCurrentDirectory(m_strAppPath);
-	}
+		//ÉèÖÃ³ÌĞòÄ¬ÈÏÂ·¾¶
+		if(m_strAppPath != _T(""))
+		{
+			SetCurrentDirectory(m_strAppPath);
+		}
 
-
-	 for(int i=0;i<8;i++)
-	{
-		m_objCheck.temp1[i].number=0;
-		m_objCheck.temp1[i].value=0;
-		m_objCheck.temp1[i].x=0;
-		m_objCheck.temp1[i].y=0;
+		for(int i=0;i<8;i++)
+		{
+			m_objCheck.temp1[i].number=0;
+			m_objCheck.temp1[i].value=0;
+			m_objCheck.temp1[i].x=0;
+			m_objCheck.temp1[i].y=0;
+		}
+		//³õÊ¼»¯£¬Ëã³öÈËÁ³¿âÖĞµÚÒ»¸öÈËµÄÊı¾İ³¡£¬Çó³öÏàÓ¦µÄ¾Ö²¿¼«Öµ£¬²¢Íê³É×ø±êÈÚºÏ
+		m_objCheck.temp1[0]=m_objCheck.Data("Faces/lib/01/1.jpg",1);
+		m_objCheck.temp1[1]=m_objCheck.Data("Faces/lib/01/2.jpg",2);
+		m_objCheck.temp1[2]=m_objCheck.Data("Faces/lib/01/3.jpg",3);
+		m_objCheck.temp1[3]=m_objCheck.Data("Faces/lib/01/4.jpg",4);
+		m_objCheck.temp1[4]=m_objCheck.Data("Faces/lib/01/5.jpg",5);
+		m_objCheck.temp1[5]=m_objCheck.Data("Faces/lib/01/6.jpg",6);
+		m_objCheck.temp1[6]=m_objCheck.Data("Faces/lib/01/7.jpg",7);
+		//³õÊ¼»¯£¬Ëã³öÈËÁ³¿âÖĞµÚ¶ş¸öÈËµÄÊı¾İ³¡£¬Çó³öÏàÓ¦µÄ¾Ö²¿¼«Öµ£¬²¢Íê³É×ø±êÈÚºÏ
+		m_objCheck.temp2[0]=m_objCheck.Data("Faces/lib/02/1.jpg",1);
+		m_objCheck.temp2[1]=m_objCheck.Data("Faces/lib/02/2.jpg",2);
+		m_objCheck.temp2[2]=m_objCheck.Data("Faces/lib/02/3.jpg",3);
+		m_objCheck.temp2[3]=m_objCheck.Data("Faces/lib/02/4.jpg",4);
+		m_objCheck.temp2[4]=m_objCheck.Data("Faces/lib/02/5.jpg",5);
+		m_objCheck.temp2[5]=m_objCheck.Data("Faces/lib/02/6.jpg",6);
+		m_objCheck.temp2[6]=m_objCheck.Data("Faces/lib/02/7.jpg",7);
+		//³õÊ¼»¯£¬Ëã³öÈËÁ³¿âÖĞµÚÈı¸öÈËµÄÊı¾İ³¡£¬Çó³öÏàÓ¦µÄ¾Ö²¿¼«Öµ£¬²¢Íê³É×ø±êÈÚºÏ
+		m_objCheck.temp3[0]=m_objCheck.Data("Faces/lib/04/1.jpg",1);
+		m_objCheck.temp3[1]=m_objCheck.Data("Faces/lib/04/2.jpg",2);
+		m_objCheck.temp3[2]=m_objCheck.Data("Faces/lib/04/3.jpg",3);
+		m_objCheck.temp3[3]=m_objCheck.Data("Faces/lib/04/4.jpg",4);
+		m_objCheck.temp3[4]=m_objCheck.Data("Faces/lib/04/5.jpg",5);
+		m_objCheck.temp3[5]=m_objCheck.Data("Faces/lib/04/6.jpg",6);
+		m_objCheck.temp3[6]=m_objCheck.Data("Faces/lib/04/7.jpg",7);
+		
+		IsAddFace=true;
+		MessageBox(_T("¼ÓÔØÍê³É£¡"));
 	}
-	//³õÊ¼»¯£¬Ëã³öÈËÁ³¿âÖĞµÚÒ»¸öÈËµÄÊı¾İ³¡£¬Çó³öÏàÓ¦µÄ¾Ö²¿¼«Öµ£¬²¢Íê³É×ø±êÈÚºÏ
-	m_objCheck.temp1[0]=m_objCheck.Data("Faces/lib/01/1.jpg",1);
-	m_objCheck.temp1[1]=m_objCheck.Data("Faces/lib/01/2.jpg",2);
-	m_objCheck.temp1[2]=m_objCheck.Data("Faces/lib/01/3.jpg",3);
-	m_objCheck.temp1[3]=m_objCheck.Data("Faces/lib/01/4.jpg",4);
-	m_objCheck.temp1[4]=m_objCheck.Data("Faces/lib/01/5.jpg",5);
-	m_objCheck.temp1[5]=m_objCheck.Data("Faces/lib/01/6.jpg",6);
-	m_objCheck.temp1[6]=m_objCheck.Data("Faces/lib/01/7.jpg",7);
-	//³õÊ¼»¯£¬Ëã³öÈËÁ³¿âÖĞµÚ¶ş¸öÈËµÄÊı¾İ³¡£¬Çó³öÏàÓ¦µÄ¾Ö²¿¼«Öµ£¬²¢Íê³É×ø±êÈÚºÏ
-	m_objCheck.temp2[0]=m_objCheck.Data("Faces/lib/02/1.jpg",1);
-	m_objCheck.temp2[1]=m_objCheck.Data("Faces/lib/02/2.jpg",2);
-	m_objCheck.temp2[2]=m_objCheck.Data("Faces/lib/02/3.jpg",3);
-	m_objCheck.temp2[3]=m_objCheck.Data("Faces/lib/02/4.jpg",4);
-	m_objCheck.temp2[4]=m_objCheck.Data("Faces/lib/02/5.jpg",5);
-	m_objCheck.temp2[5]=m_objCheck.Data("Faces/lib/02/6.jpg",6);
-	m_objCheck.temp2[6]=m_objCheck.Data("Faces/lib/02/7.jpg",7);
-	//³õÊ¼»¯£¬Ëã³öÈËÁ³¿âÖĞµÚÈı¸öÈËµÄÊı¾İ³¡£¬Çó³öÏàÓ¦µÄ¾Ö²¿¼«Öµ£¬²¢Íê³É×ø±êÈÚºÏ
-	m_objCheck.temp3[0]=m_objCheck.Data("Faces/lib/04/1.jpg",1);
-	m_objCheck.temp3[1]=m_objCheck.Data("Faces/lib/04/2.jpg",2);
-	m_objCheck.temp3[2]=m_objCheck.Data("Faces/lib/04/3.jpg",3);
-	m_objCheck.temp3[3]=m_objCheck.Data("Faces/lib/04/4.jpg",4);
-	m_objCheck.temp3[4]=m_objCheck.Data("Faces/lib/04/5.jpg",5);
-	m_objCheck.temp3[5]=m_objCheck.Data("Faces/lib/04/6.jpg",6);
-	m_objCheck.temp3[6]=m_objCheck.Data("Faces/lib/04/7.jpg",7);
-	MessageBox(_T("¼ÓÔØÍê³É£¡"));
+	else
+		MessageBox(_T("ÈËÁ³¿âÒÑ¾­¼ÓÔØ£¡"));
 }
 
 
 void CCheckDlg::OnBnClickedCheckdlgOpenpicture()
 {
 	// TODO: ÔÚ´ËÌí¼Ó¿Ø¼şÍ¨Öª´¦Àí³ÌĞò´úÂë
-	CFileDialog dlg( TRUE, _T("*.bmp"), NULL,
-					OFN_FILEMUSTEXIST | OFN_PATHMUSTEXIST | OFN_HIDEREADONLY,
-					_T("image files (*.bmp; *.jpg; *.tiff) |*.bmp; *.jpg; *.tiff| All Files (*.*) |*.*||"),
-					NULL );										// Ñ¡ÏîÍ¼Æ¬µÄÔ¼¶¨
-	dlg.m_ofn.lpstrTitle = _T("´ò¿ªÍ¼Æ¬");	// ´ò¿ªÎÄ¼ş¶Ô»°¿òµÄ±êÌâÃû
-	if( dlg.DoModal() != IDOK )				// ÅĞ¶ÏÊÇ·ñ»ñµÃÍ¼Æ¬
+	if(IsAddFace)
 	{
-		return;
-	}
+		CFileDialog dlg( TRUE, _T("*.bmp"), NULL,
+						OFN_FILEMUSTEXIST | OFN_PATHMUSTEXIST | OFN_HIDEREADONLY,
+						_T("image files (*.bmp; *.jpg; *.tiff) |*.bmp; *.jpg; *.tiff| All Files (*.*) |*.*||"),
+						NULL );										// Ñ¡ÏîÍ¼Æ¬µÄÔ¼¶¨
+		dlg.m_ofn.lpstrTitle = _T("´ò¿ªÍ¼Æ¬");	// ´ò¿ªÎÄ¼ş¶Ô»°¿òµÄ±êÌâÃû
+		if( dlg.DoModal() != IDOK )				// ÅĞ¶ÏÊÇ·ñ»ñµÃÍ¼Æ¬
+		{
+			return;
+		}
+		
+		CString strPath = dlg.GetPathName();			// »ñÈ¡Í¼Æ¬Â·¾¶
+		m_objCheck.m_ReadImage1=cvLoadImage(strPath,0);
+		
+		if(!m_objCheck.m_ReadImage1)
+		{
+			MessageBox(_T("ÎŞ·¨´ò¿ªÍ¼Æ¬"));
+			return;
+		}
+		ShowImage( m_objCheck.m_ReadImage1,IDC_CheckDlg_Picture1);
+		cvReleaseImage( &m_objCheck.m_ReadImage1);
+		m_objCheck.tempcheck=m_objCheck.Data(strPath,8);
 	
-	CString strPath = dlg.GetPathName();			// »ñÈ¡Í¼Æ¬Â·¾¶
-	
-	m_objCheck.m_ReadImage1=cvLoadImage(strPath,0);
-//  str=CString.Format("%s", strPath);
-	
-	if(!m_objCheck.m_ReadImage1)
-	{
-		MessageBox(_T("ÎŞ·¨´ò¿ªÍ¼Æ¬"));
-		return;
-	}
-	ShowImage( m_objCheck.m_ReadImage1,IDC_CheckDlg_Picture1);
-	cvReleaseImage( &m_objCheck.m_ReadImage1);
-	//string s(CString.GetBuffer());
-	//char * p = string.c_str();
-	m_objCheck.tempcheck=m_objCheck.Data(strPath,8);
-	
-//	SetTips(_T("ÒÑ´ò¿ªÍ¼Æ¬£º") + strPath);
-	MessageBox(_T("ÒÑ´ò¿ªÍ¼Æ¬"));
-	UpdateData(TRUE);
+		MessageBox(_T("ÒÑ´ò¿ªÍ¼Æ¬"));
+		UpdateData(TRUE);
 
-
-	//ÉèÖÃ³ÌĞòÄ¬ÈÏÂ·¾¶
-	if(m_strAppPath != _T(""))
-	{
-		SetCurrentDirectory(m_strAppPath);
+		//ÉèÖÃ³ÌĞòÄ¬ÈÏÂ·¾¶
+		if(m_strAppPath != _T(""))
+		{
+			SetCurrentDirectory(m_strAppPath);
+		}
+		IsOpen=true;
 	}
+	else
+		MessageBox(_T("ÇëÏÈ¼ÓÔØÈËÁ³¿â£¡"));
 
 }
 
 void CCheckDlg::OnBnClickedCheckdlgShell()
 {
 	// TODO: ÔÚ´ËÌí¼Ó¿Ø¼şÍ¨Öª´¦Àí³ÌĞò´úÂë
-	
-	bool checkflag1,checkflag2,checkflag3;
-	//DataField tempcheck;
-	//tempcheck=m_objCheck.Data("Faces/lib/01/2.jpg",8);
-	checkflag1=m_objCheck.SecondData(m_objCheck.temp1,m_objCheck.tempcheck);
-	checkflag2=m_objCheck.SecondData(m_objCheck.temp2,m_objCheck.tempcheck);
-	checkflag3=m_objCheck.SecondData(m_objCheck.temp3,m_objCheck.tempcheck);
+	if(IsOpen)
+	{
+		bool checkflag1,checkflag2,checkflag3;
+		//DataField tempcheck;
+		//tempcheck=m_objCheck.Data("Faces/lib/01/2.jpg",8);
+		checkflag1=m_objCheck.SecondData(m_objCheck.temp1,m_objCheck.tempcheck);
+		checkflag2=m_objCheck.SecondData(m_objCheck.temp2,m_objCheck.tempcheck);
+		checkflag3=m_objCheck.SecondData(m_objCheck.temp3,m_objCheck.tempcheck);
    
-	if(checkflag1&&checkflag2&&checkflag3)
-		MessageBox(_T("ÓĞÄ°ÉúÈË!"));
+		if(checkflag1&&checkflag2&&checkflag3)
+			MessageBox(_T("ÊÇÄ°ÉúÈË!"));
+		else
+			MessageBox(_T("²»ÊÇÄ°ÉúÈË!"));
+		IsOpen=false;
+	}
 	else
-		MessageBox(_T("²»ÊÇÄ°ÉúÈË!"));
+		MessageBox(_T("ÇëÏÈÔØÈë´ı²âÈËÁ³Í¼Æ¬£¡"));
 }
 
 BOOL CCheckDlg::OnInitDialog()
 {
 	CDialog::OnInitDialog();
-
 	// TODO:  ÔÚ´ËÌí¼Ó¶îÍâµÄ³õÊ¼»¯	return TRUE;  
-	
+
 	//»ñÈ¡µ±Ç°³ÌĞòÄ¿Â¼
 	m_strAppPath = m_objConfig.GetConfig("AppPath");
 	
-
 	// Òì³£: OCX ÊôĞÔÒ³Ó¦·µ»Ø FALSE
 	return true;
 }
