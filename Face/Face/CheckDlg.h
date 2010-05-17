@@ -29,10 +29,7 @@ public:
 	
 	afx_msg void OnBnClickedCheckdlgOpenpicture();
 public:
-	void ResizeImage(IplImage* img);
-	void ShowImage( IplImage* img, UINT ID );	// ID 是Picture Control控件的ID号
-	void ShowImage( IplImage* srcImage);	//显示图像，包括缩小图像
-	void SetTips( CString strTips);
+	void ShowImage( IplImage* img, UINT ID );
 
 private:
 	IplImage* m_showImage;
@@ -40,6 +37,9 @@ private:
 	CDetect m_objDetect;
 	CConfig m_objConfig;
 	CString m_strAppPath;
+	
+	bool IsAddFace;	//判断是否已加载人脸库
+	bool IsOpen;	//判断开始识别之前，是否已将图片载入
 public:
 	afx_msg void OnBnClickedCheckdlgShell();
 	virtual BOOL OnInitDialog();

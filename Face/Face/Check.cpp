@@ -147,9 +147,9 @@ DataField CCheck:: Data(CString name,int num)
 	}
 
 	//复制图像
-	img2=cvCreateImage(cvGetSize(img),img->depth,0);
-	data2=(uchar *)img2->imageData;
-	cvCopy(img,img2,0);
+//	img2=cvCreateImage(cvGetSize(img),img->depth,0);
+//	data2=(uchar *)img2->imageData;
+//	cvCopy(img,img2,0);
 
    //遍历图像，创建数据场,sigema*sigema=10
 	//外面两个for循环用以遍历整张图片
@@ -199,7 +199,7 @@ DataField CCheck:: Data(CString name,int num)
 		q++;
 	}
 	delete local_temp;
-	printf("\n%d\n%d\n",i,q);
+	
 
 	//对局部极值点投影成一个点，即进行坐标的融合
 	for(i=0;i<q;i++)
@@ -221,11 +221,6 @@ DataField CCheck:: Data(CString name,int num)
 	//result.x为20个局部极值点投影为一个点的y坐标
 	result.y=sum_y/sum;
 
-	printf("%f\t%d%d",result.value,result.x,result.y);
-	printf("\n");	
-
-//	cvSaveImage(name,img2);
-	
 //	cv::namedWindow("image", CV_WINDOW_AUTOSIZE); //创建窗口
 //namedWindow("image2", CV_WINDOW_AUTOSIZE); //创建窗口
 //	imshow("image", img); //显示图像
@@ -273,7 +268,6 @@ bool CCheck::SecondData(DataField *a,DataField tempcheck)//a为样本对象，tempchec
 				double d=-((temp[k].x-x)*(temp[k].x-x)+(temp[k].y-y)*(temp[k].y-y))/9;	//距离的平方							
 				second_datafield[x][y]+=temp[k].value*exp(d);
 			}
-	printf("\n\n\n");
      
 	//对投影到二次数据场中的8个对象进行排序
 	for(int i=0;i<8;i++) 
@@ -290,12 +284,8 @@ bool CCheck::SecondData(DataField *a,DataField tempcheck)//a为样本对象，tempchec
 	//若排序后，待测对象仍排在数组的末尾，则说明该对象在二次数据场中势值最小，且为离群点
 	for(int i=0;i<8;i++)
 	{
-		if(unsort[i].number==8&&i==7&&(unsort[6].value-unsort[7].value)<2)
+		if(unsort[i].number==8&&i==7&&(unsort[6].value-unsort[7].value)>2)
 			flag=true;
 	}
 	return flag;
-//	for(int i=0;i<8;i++)
-//		printf("%f\t%s%d%s%d%s\t%d\n",unsort[i].value,"(",unsort[i].x,",",unsort[i].y,")",unsort[i].number);
-
-
 }
