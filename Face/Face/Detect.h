@@ -11,8 +11,8 @@
 
 
 //图片的最大规格
-#define IMAGE_MAX_WIDTH 1000			//图片最大
-#define IMAGE_MAX_HEIGHT 1000
+#define IMAGE_MAX_WIDTH 800			//图片最大
+#define IMAGE_MAX_HEIGHT 800
 
 //人脸图像的规格
 #define FACE_WIDTH 128			//人脸大小
