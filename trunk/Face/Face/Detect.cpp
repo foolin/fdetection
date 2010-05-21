@@ -343,7 +343,7 @@ bool CDetect::FaceDetect( CString strCascadeName )
 		cvCvtColor( image, gray, CV_BGR2GRAY );
 	}
     cvResize( gray, small_img, CV_INTER_LINEAR );
-    cvEqualizeHist( small_img, small_img );
+    cvEqualizeHist( small_img, small_img );	//灰度图像直方图均衡化
     cvClearMemStorage( m_pStorage );
  
     if( m_pCascade )
@@ -355,7 +355,7 @@ bool CDetect::FaceDetect( CString strCascadeName )
                                             //cvSize(30, 30) );
         CvSeq* faces = cvHaarDetectObjects( small_img, m_pCascade, m_pStorage,
                                             1.1, 2, CV_HAAR_DO_CANNY_PRUNING,
-                                            cvSize(30, 30) );
+                                            cvSize(40, 40) );
         t = (double)cvGetTickCount() - t;
         //printf( "detection time = %gms\n", t/((double)cvGetTickFrequency()*1000.) );
 		if(faces)
@@ -387,9 +387,15 @@ bool CDetect::FaceDetect( CString strCascadeName )
 			//获取人脸的路径
 			strFaceName.Format(_T("%s/%s%d.jpg"), FACE_DIR, util.RandDate(), i+1);
 
+
+			IplImage* resultImage = cvCreateImage( cvSize(FACE_WIDTH, FACE_HEIGHT) , img2->depth, img2->nChannels);
+			cvResize(img2, resultImage, CV_INTER_LINEAR);	//缩放源图像到目标图像
+			cvSaveImage(strFaceName, resultImage);
+			cvReleaseImage(&resultImage);
+
 			//sprintf(filename,"images/face%d.jpg",i+1);
-			Normalization(img2);	//归一化脸部头像
-			cvSaveImage(strFaceName, img2);
+			//Normalization(img2);	//归一化脸部头像
+			//cvSaveImage(strFaceName, img2);
 			cvReleaseImage(&img2);
 			//printf( "Save img:%s\n", filename );
 			//保存提示
