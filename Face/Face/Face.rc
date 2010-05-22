@@ -102,22 +102,26 @@ BEGIN
     PUSHBUTTON      "人脸识别模块",IDC_Btn_Check,205,40,76,33
 END
 
-IDD_DetectDlg DIALOGEX 0, 0, 368, 257
+IDD_DetectDlg DIALOGEX 0, 0, 357, 257
 STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
-CAPTION "人脸检测与分割模块（刘付灵 - 0615210054）"
+CAPTION "人脸定位与分割模块（刘付灵 - 0615210054）"
 FONT 8, "MS Shell Dlg", 400, 0, 0x1
 BEGIN
-    PUSHBUTTON      "退出",IDOK,270,170,77,25
+    PUSHBUTTON      "关闭",IDOK,304,225,37,18
     CONTROL         "",IDC_DtPc_ShowImage,"Static",SS_BLACKFRAME,7,7,241,210
-    GROUPBOX        "程序",IDC_STATIC,255,160,103,70
-    GROUPBOX        "图像",IDC_STATIC,255,9,103,70
-    DEFPUSHBUTTON   "打开图像",IDC_DtBtn_OpenImage,270,21,77,25
-    PUSHBUTTON      "保存图像",IDC_DtBtn_SaveImage,270,48,77,25
-    GROUPBOX        "处理",IDC_STATIC,255,82,103,70
-    PUSHBUTTON      "检测与分割",IDC_DtBtn_Detect,270,93,77,25
-    PUSHBUTTON      "打开人脸目录",IDC_DtBtn_OpenDir,270,122,77,25
+    GROUPBOX        "程序",IDC_STATIC,256,215,91,35
+    GROUPBOX        "图像",IDC_STATIC,255,9,91,54
+    DEFPUSHBUTTON   "打开图像",IDC_DtBtn_OpenImage,270,20,66,19
+    PUSHBUTTON      "保存图像",IDC_DtBtn_SaveImage,270,40,66,19
+    GROUPBOX        "人脸检测",IDC_STATIC,256,153,90,58
+    PUSHBUTTON      "人脸定位与分割",IDC_DtBtn_Detect,270,165,66,19
+    PUSHBUTTON      "打开人脸目录",IDC_DtBtn_OpenDir,270,187,66,19
     CTEXT           "请打开图像...",IDC_DtTxt_Tips,7,227,242,23
-    PUSHBUTTON      "关于",IDC_DtBtn_About,270,198,77,25
+    PUSHBUTTON      "关于",IDC_DtBtn_About,263,226,37,18
+    GROUPBOX        "图像处理",IDC_STATIC,256,66,90,82
+    PUSHBUTTON      "图像灰度化",IDC_DtBtn_2Gray,269,78,66,19
+    PUSHBUTTON      "直方图均衡化",IDC_DtBtn_EqualHist,269,100,66,19
+    PUSHBUTTON      "去除噪声",IDC_DtBtn_RemoveNoise,269,122,66,19
 END
 
 IDD_CheckDlg DIALOGEX 0, 0, 381, 257
@@ -212,7 +216,7 @@ BEGIN
     IDD_DetectDlg, DIALOG
     BEGIN
         LEFTMARGIN, 7
-        RIGHTMARGIN, 361
+        RIGHTMARGIN, 350
         TOPMARGIN, 7
         BOTTOMMARGIN, 250
     END

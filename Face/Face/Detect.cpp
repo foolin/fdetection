@@ -208,9 +208,16 @@ bool CDetect::SetGrayImage(IplImage *image)
 	}
 	if(image != NULL)
 	{
-		m_pGrayImage = cvCreateImage(cvSize(image->width,image->height), IMAGE_GRAY_DEPTH, IMAGE_GRAY_CHANNELS);
-		 //把彩色图像转换为灰度图像
-		cvCvtColor(image, m_pGrayImage, CV_RGB2GRAY);
+		if((image->depth != m_pGrayImage->depth) || (image->nChannels != m_pGrayImage->nChannels))
+		{
+			m_pGrayImage = cvCreateImage(cvSize(image->width,image->height), IMAGE_GRAY_DEPTH, IMAGE_GRAY_CHANNELS);
+			 //把彩色图像转换为灰度图像
+			cvCvtColor(image, m_pGrayImage, CV_RGB2GRAY);
+		}
+		else
+		{
+			cvCopy(image, m_pGrayImage);
+		}
 	}
 	else
 	{
@@ -226,7 +233,17 @@ bool CDetect::SetGrayImage(IplImage *image)
 	
 	return true;
 }
-
+void CDetect::EqualizeHist( IplImage* image)	//灰度图像直方图均衡化
+{
+	if(!image)
+	{
+		cvEqualizeHist(m_pGrayImage, m_pGrayImage);
+	}
+	else
+	{
+		cvEqualizeHist(image, m_pGrayImage);
+	}
+}
 
 //设置二值化图像
 bool CDetect::SetBinaryImage(IplImage* image)
@@ -403,6 +420,7 @@ bool CDetect::FaceDetect( CString strCascadeName )
 
 			//画矩形
 			cvRectangle( m_pReadImage, cvPoint(rect2.x, rect2.y), cvPoint(rect2.x + rect2.width, rect2.y + rect2.height), colors[i%8], 3, 8, 0);
+			cvRectangle( m_pGrayImage, cvPoint(rect2.x, rect2.y), cvPoint(rect2.x + rect2.width, rect2.y + rect2.height), colors[i%8], 3, 8, 0);
 			//画圆
             //cvCircle( img, center, radius, colors[i%8], 3, 8, 0 );
         }
@@ -429,13 +447,25 @@ bool CDetect::FaceDetect( CString strCascadeName )
 	return true;
 }
 
-void CDetect::RemoveNoise()
+//去除噪声
+void CDetect::RemoveNoise(bool isGrayImage)
 {
-	IplImage* dst = cvCreateImage( cvGetSize( m_pReadImage),
-						m_pReadImage->depth, m_pReadImage->nChannels);
-	cvSmooth( m_pReadImage,dst,CV_MEDIAN,3,0);	//中值滤波
-	SetImage( dst );
-	cvReleaseImage( &dst);
+	if(isGrayImage)
+	{
+		IplImage* dst = cvCreateImage( cvGetSize( m_pGrayImage),
+							m_pGrayImage->depth, m_pGrayImage->nChannels);
+		cvSmooth( m_pGrayImage,dst,CV_MEDIAN,3,0);	//中值滤波
+		SetGrayImage( dst );
+		cvReleaseImage( &dst);
+	}
+	else
+	{
+		IplImage* dst = cvCreateImage( cvGetSize( m_pReadImage),
+							m_pReadImage->depth, m_pReadImage->nChannels);
+		cvSmooth( m_pReadImage,dst,CV_MEDIAN,3,0);	//中值滤波
+		SetImage( dst );
+		cvReleaseImage( &dst);
+	}
 }
 
 //归一化人脸

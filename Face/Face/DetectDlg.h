@@ -42,9 +42,15 @@ private:
 	CDetect m_objDetect;
 	CConfig m_objConfig;
 	CString m_strCascadeName;
+	bool m_blnIsShowGray;
+
+
 public:
 	virtual BOOL OnInitDialog();
 	afx_msg void OnPaint();
 	// ³ÌÐòÂ·¾¶
 	CString m_strAppPath;
+	afx_msg void OnBnClickedDtbtn2gray();
+	afx_msg void OnBnClickedDtbtnEqualhist();
+	afx_msg void OnBnClickedDtbtnRemovenoise();
 };

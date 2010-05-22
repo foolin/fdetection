@@ -65,6 +65,7 @@ public:
 	bool SetBinaryImage(IplImage* image = NULL);		//二值化
 	bool FaceDetect( CString strCascadeName );			//人脸检测
 	void Normalization( IplImage* image );		//归一化
-	void RemoveNoise();							//去除噪声
+	void RemoveNoise(bool isGrayImage = false);							//去除噪声
+	void EqualizeHist( IplImage *image = NULL);	//灰度图像直方图均衡化
 	void Release();						//释放资源
 };
