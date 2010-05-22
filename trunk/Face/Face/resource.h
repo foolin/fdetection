@@ -25,10 +25,15 @@
 #define IDC_CheckDlg_Picture1           1011
 #define IDC_CheckDlg_Tips               1014
 #define IDC_CheckDlg_Shell              1015
+
 #define IDC_CheckDlg_AddFace            1016
 #define IDC_PROGRESS1                   1017
 #define IDC_CheckDlg_PROGRESS           1017
 #define IDC_ChedkDlg_Tip                1018
+#define IDC_DtBtn_2Gray                 1019
+#define IDC_DtBtn_EqualHist             1020
+#define IDC_DtBtn_RemoveNoise           1021
+
 
 // Next default values for new objects
 // 
