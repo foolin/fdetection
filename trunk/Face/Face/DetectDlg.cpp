@@ -14,6 +14,7 @@ CDetectDlg::CDetectDlg(CWnd* pParent /*=NULL*/)
 	: CDialog(CDetectDlg::IDD, pParent)
 	//, m_showImage(NULL)
 	, m_strAppPath(_T(""))
+	, m_blnIsShowGray(false)
 {
 	
 
@@ -42,9 +43,59 @@ BEGIN_MESSAGE_MAP(CDetectDlg, CDialog)
 	ON_BN_CLICKED(IDC_DtBtn_Detect, &CDetectDlg::OnBnClickedDtbtnDetect)
 	ON_BN_CLICKED(IDC_DtBtn_About, &CDetectDlg::OnBnClickedDtbtnAbout)
 	ON_WM_PAINT()
+	ON_BN_CLICKED(IDC_DtBtn_2Gray, &CDetectDlg::OnBnClickedDtbtn2gray)
+	ON_BN_CLICKED(IDC_DtBtn_EqualHist, &CDetectDlg::OnBnClickedDtbtnEqualhist)
+	ON_BN_CLICKED(IDC_DtBtn_RemoveNoise, &CDetectDlg::OnBnClickedDtbtnRemovenoise)
 END_MESSAGE_MAP()
 
 
+BOOL CDetectDlg::OnInitDialog()
+{
+	CDialog::OnInitDialog();
+
+	// TODO:  在此添加额外的初始化
+
+
+	//初始化ShowImage
+	CvSize imgSize;
+    imgSize.height = SHOWIMAGE_HEIGHT;
+    imgSize.width = SHOWIMAGE_WIDTH;
+	m_showImage = cvCreateImage( imgSize, IPL_DEPTH_8U, 3 );
+
+	//初始化配置文件
+	m_strAppPath = m_objConfig.GetConfig(_T("AppPath"));
+	m_strCascadeName = m_objConfig.GetConfig(_T("Detect"), _T("CascadeName"));
+	if( m_strCascadeName == _T(""))
+	{
+		m_strCascadeName = _T("xml\\haarcascade_frontalface_alt_tree.xml");
+		m_objConfig.SetConfig(_T("Detect"), _T("CascadeName"), m_strCascadeName);
+	}
+
+	//使按钮失效
+	GetDlgItem( IDC_DtBtn_SaveImage )->EnableWindow( FALSE );
+	GetDlgItem( IDC_DtBtn_2Gray )->EnableWindow( FALSE );
+	GetDlgItem( IDC_DtBtn_EqualHist )->EnableWindow( FALSE );
+	GetDlgItem( IDC_DtBtn_RemoveNoise )->EnableWindow( FALSE );
+	GetDlgItem( IDC_DtBtn_Detect )->EnableWindow( FALSE );
+	//GetDlgItem( IDC_DtBtn_OpenDir )->EnableWindow( FALSE );
+
+	return TRUE;  // return TRUE unless you set the focus to a control
+	// 异常: OCX 属性页应返回 FALSE
+}
+
+
+
+void CDetectDlg::OnPaint()
+{
+	//CPaintDC dc(this); // device context for painting
+	//// TODO: 在此处添加消息处理程序代码
+	//// 不为绘图消息调用 CDialog::OnPaint()
+    CDialog::OnPaint();                    // 重绘对话框
+    CDialog::UpdateWindow();                // 更新windows窗口，如果无这步调用，图片显示还会出现问题
+    //ShowImage( m_objDetect.m_pReadImage);    // 重绘图片函数
+	ShowImage( m_showImage, IDC_DtPc_ShowImage );		// 重绘图片函数
+
+}
 
 
 //处理函数
@@ -54,6 +105,15 @@ void CDetectDlg::ShowImage( IplImage* srcImage)	//显示图像，包括缩小图像
 //	IplImage* img = cvCreateImage( cvGetSize( srcImage), srcImage->depth, srcImage->nChannels);
 //	cvCopy( srcImage, img, NULL);
 //	ResizeImage(img);	//图片进行缩放
+
+
+	if((srcImage->depth != m_showImage->depth) || (srcImage->nChannels != m_showImage->nChannels))
+	{
+		cvZero(m_showImage);
+		m_showImage = cvCreateImage(cvSize(SHOWIMAGE_WIDTH, SHOWIMAGE_HEIGHT), srcImage->depth, srcImage->nChannels);	//测试用
+	}
+
+
 	ResizeImage(srcImage);	//图片进行缩放
 	ShowImage( m_showImage, IDC_DtPc_ShowImage );			// 调用显示图片函数	
 //	cvReleaseImage( &img);
@@ -152,12 +212,17 @@ void CDetectDlg::OnBnClickedDtbtnOpenimage()
 		return;
 	}
 	ShowImage( m_objDetect.m_pReadImage);
+	//m_objDetect.SetGrayImage();
+	//ShowImage( m_objDetect.m_pGrayImage);
 
 
 	//// 使按钮生效
 	GetDlgItem( IDC_DtBtn_SaveImage )->EnableWindow( TRUE );
+	GetDlgItem( IDC_DtBtn_2Gray )->EnableWindow( TRUE );
+	GetDlgItem( IDC_DtBtn_EqualHist )->EnableWindow( TRUE );
+	GetDlgItem( IDC_DtBtn_RemoveNoise )->EnableWindow( TRUE );
 	GetDlgItem( IDC_DtBtn_Detect )->EnableWindow( TRUE );
-	GetDlgItem( IDC_DtBtn_OpenDir )->EnableWindow( TRUE );
+	//GetDlgItem( IDC_DtBtn_OpenDir )->EnableWindow( TRUE );
 
 	SetTips(_T("已打开图片：") + strPath);
 
@@ -185,7 +250,14 @@ void CDetectDlg::OnBnClickedDtbtnSaveimage()
 		return;
 	}
 	CString strPath = dlg.GetPathName();			// 获取图片路径
-	cvSaveImage(strPath, m_objDetect.m_pReadImage);
+	if(m_blnIsShowGray)
+	{
+		cvSaveImage(strPath, m_objDetect.m_pGrayImage);
+	}
+	else
+	{
+		cvSaveImage(strPath, m_objDetect.m_pReadImage);
+	}
 	SetTips(_T("已保存图片到：") + strPath);
 	//提示是否打开文件夹
 	CString strDir = strPath.Left(strPath.ReverseFind(_T('\\')));
@@ -214,14 +286,21 @@ void CDetectDlg::OnBnClickedDtbtnDetect()
 	if(m_objDetect.FaceDetect(m_strCascadeName))
 	{
 		//显示图像
-		ShowImage( m_objDetect.m_pReadImage);
+		if(m_blnIsShowGray)
+		{
+			ShowImage( m_objDetect.m_pGrayImage);
+		}
+		else
+		{
+			ShowImage( m_objDetect.m_pReadImage);
+		}
 		
 		//增加提示
 		CString strTips;
 		int m_facesCount = m_objDetect.m_nFacesCount;
 		if (m_facesCount > 0)
 		{
-			strTips.Format(_T("检测完毕！共检测到%d张人脸！"), m_facesCount);
+			strTips.Format(_T("检测完毕！共检测到%d张人脸！\n人脸图像已保存!"), m_facesCount, m_strAppPath);
 		}
 		else
 		{
@@ -233,6 +312,8 @@ void CDetectDlg::OnBnClickedDtbtnDetect()
 	{
 		SetTips(_T("检测失败：") + m_objDetect.m_strErrMessage);	//检测失败
 	}
+	//MessageBox("人脸处理完毕");
+	GetDlgItem( IDC_DtBtn_Detect )->EnableWindow( FALSE );
 
 }
 
@@ -252,45 +333,32 @@ void CDetectDlg::OnBnClickedDtbtnAbout()
 	ShellExecute(NULL,"open","http://www.liufu.org/ling",NULL,NULL,SW_SHOW); 
 }
 
-BOOL CDetectDlg::OnInitDialog()
+
+
+
+void CDetectDlg::OnBnClickedDtbtn2gray()
 {
-	CDialog::OnInitDialog();
-
-	// TODO:  在此添加额外的初始化
-
-
-	//初始化ShowImage
-	CvSize imgSize;
-    imgSize.height = SHOWIMAGE_HEIGHT;
-    imgSize.width = SHOWIMAGE_WIDTH;
-	m_showImage = cvCreateImage( imgSize, IPL_DEPTH_8U, 3 );
-
-	//初始化配置文件
-	m_strAppPath = m_objConfig.GetConfig(_T("AppPath"));
-	m_strCascadeName = m_objConfig.GetConfig(_T("Detect"), _T("CascadeName"));
-	if( m_strCascadeName == _T(""))
+	// TODO: 在此添加控件通知处理程序代码
+	if(!m_blnIsShowGray)	//判断是否已经显示灰度图像
 	{
-		m_strCascadeName = _T("xml\\haarcascade_frontalface_alt_tree.xml");
-		m_objConfig.SetConfig(_T("Detect"), _T("CascadeName"), m_strCascadeName);
+		m_objDetect.SetGrayImage();
 	}
-
-	//使按钮失效
-	GetDlgItem( IDC_DtBtn_SaveImage )->EnableWindow( FALSE );
-	GetDlgItem( IDC_DtBtn_Detect )->EnableWindow( FALSE );
-	GetDlgItem( IDC_DtBtn_OpenDir )->EnableWindow( FALSE );
-
-	return TRUE;  // return TRUE unless you set the focus to a control
-	// 异常: OCX 属性页应返回 FALSE
+	ShowImage( m_objDetect.m_pGrayImage);
+	m_blnIsShowGray = true;
 }
 
-void CDetectDlg::OnPaint()
+void CDetectDlg::OnBnClickedDtbtnEqualhist()
 {
-	//CPaintDC dc(this); // device context for painting
-	//// TODO: 在此处添加消息处理程序代码
-	//// 不为绘图消息调用 CDialog::OnPaint()
-    CDialog::OnPaint();                    // 重绘对话框
-    CDialog::UpdateWindow();                // 更新windows窗口，如果无这步调用，图片显示还会出现问题
-    //ShowImage( m_objDetect.m_pReadImage);    // 重绘图片函数
-	ShowImage( m_showImage, IDC_DtPc_ShowImage );		// 重绘图片函数
+	// TODO: 在此添加控件通知处理程序代码
+	m_objDetect.EqualizeHist();
+	ShowImage( m_objDetect.m_pGrayImage);
+	m_blnIsShowGray = true;
+}
 
+void CDetectDlg::OnBnClickedDtbtnRemovenoise()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	//m_objDetect.RemoveNoise(true);
+	m_objDetect.RemoveNoise(m_blnIsShowGray);
+	ShowImage( m_objDetect.m_pGrayImage);
 }
