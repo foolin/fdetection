@@ -283,7 +283,7 @@ bool CDetect::FaceDetect( CString strCascadeName )
 {
 
 	//去噪声
-	RemoveNoise();	//中值滤波去噪声
+	RemoveNoise(true);	//中值滤波去噪声
 
 
 	//获取目录和名字
