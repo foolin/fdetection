@@ -283,6 +283,11 @@ void CDetectDlg::OnBnClickedDtbtnDetect()
 	{
 		SetCurrentDirectory(m_strAppPath);
 	}
+	//如果直接检测，则自动进行去噪处理
+	if(!m_blnIsShowGray)
+	{
+		m_objDetect.RemoveNoise();
+	}
 	if(m_objDetect.FaceDetect(m_strCascadeName))
 	{
 		//显示图像
