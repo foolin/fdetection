@@ -65,10 +65,16 @@ BOOL CDetectDlg::OnInitDialog()
 	//初始化配置文件
 	m_strAppPath = m_objConfig.GetConfig(_T("AppPath"));
 	m_strCascadeName = m_objConfig.GetConfig(_T("Detect"), _T("CascadeName"));
+	m_strEyesCascadeName = m_objConfig.GetConfig(_T("Detect"), _T("EyesCascadeName"));
 	if( m_strCascadeName == _T(""))
 	{
 		m_strCascadeName = _T("xml\\haarcascade_frontalface_alt_tree.xml");
 		m_objConfig.SetConfig(_T("Detect"), _T("CascadeName"), m_strCascadeName);
+	}
+	if( m_strEyesCascadeName == _T(""))
+	{
+		m_strEyesCascadeName = _T("xml\\haarcascade_mcs_eyepair_big.xml");
+		m_objConfig.SetConfig(_T("Detect"), _T("EyesCascadeName"), m_strEyesCascadeName);
 	}
 
 	//使按钮失效
@@ -231,6 +237,8 @@ void CDetectDlg::OnBnClickedDtbtnOpenimage()
 	{
 		SetCurrentDirectory(m_strAppPath);
 	}
+
+	m_blnIsShowGray = false;	//重置显示灰度图标志位
 }
 
 
@@ -288,7 +296,7 @@ void CDetectDlg::OnBnClickedDtbtnDetect()
 	{
 		m_objDetect.RemoveNoise();
 	}
-	if(m_objDetect.FaceDetect(m_strCascadeName))
+	if(m_objDetect.FaceDetect(m_strCascadeName, m_strEyesCascadeName))
 	{
 		//显示图像
 		if(m_blnIsShowGray)
