@@ -63,9 +63,11 @@ public:
 	bool SetReadImage( IplImage* image, int maxWidth=0, int maxHeight=0 );	//设置图片大小并保存到m_pReadImage/m_pGrayImage/m_pBinaryImage
 	bool SetGrayImage( IplImage* image = NULL);		//设置图片大小并保存到m_readImage
 	bool SetBinaryImage(IplImage* image = NULL);		//二值化
-	bool FaceDetect( CString strCascadeName );			//人脸检测
+	bool FaceDetect( CString strCascadeName, CString strEyesCascadeName = _T("") );			//人脸检测
 	void Normalization( IplImage* image );		//归一化
 	void RemoveNoise(bool isGrayImage = false);							//去除噪声
 	void EqualizeHist( IplImage *image = NULL);	//灰度图像直方图均衡化
 	void Release();						//释放资源
+
+	int HasEyes( IplImage* img, CString strCascadeName);	//是否存在人眼，返回人眼对数
 };

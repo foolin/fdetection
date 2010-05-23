@@ -42,6 +42,7 @@ private:
 	CDetect m_objDetect;
 	CConfig m_objConfig;
 	CString m_strCascadeName;
+	CString m_strEyesCascadeName;
 	bool m_blnIsShowGray;
 
 
