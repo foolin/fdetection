@@ -1,6 +1,5 @@
 #include "StdAfx.h"
 #include "Check.h"
-#include "String.h"
 
 //所有的以新风格命名的函数都在 cv 命名空间中
 //如果希望不要每次都输入 cv:: ，则可使用下面语句
@@ -13,7 +12,6 @@ CCheck::CCheck(void)
 CCheck::~CCheck(void)
 {
 }
-
 
 //初始化图像
 void CCheck::Init()
@@ -94,7 +92,7 @@ DataField CCheck:: Data(CString name,int num)
 	int i,j,l,m,p=0,q=0,x,y;	//用于遍历图像时，for循环的变量
 	double sum=0,temp;		//建立数据场，运算势值的临时变量
 	DataField result;		//用以保存一幅图像运算后，若干个局部极值点投影成一个点
-	result.value=0;
+	result.value=0;			//对result各个域进行初始化
 	result.x=0;
 	result.y=0;
 	result.number=num;
@@ -146,10 +144,6 @@ DataField CCheck:: Data(CString name,int num)
 		}
 	}
 
-	//复制图像
-//	img2=cvCreateImage(cvGetSize(img),img->depth,0);
-//	data2=(uchar *)img2->imageData;
-//	cvCopy(img,img2,0);
 
    //遍历图像，创建数据场,sigema*sigema=10
 	//外面两个for循环用以遍历整张图片
@@ -221,21 +215,16 @@ DataField CCheck:: Data(CString name,int num)
 	//result.x为20个局部极值点投影为一个点的y坐标
 	result.y=sum_y/sum;
 
-//	cv::namedWindow("image", CV_WINDOW_AUTOSIZE); //创建窗口
-//namedWindow("image2", CV_WINDOW_AUTOSIZE); //创建窗口
-//	imshow("image", img); //显示图像
-//	imshow("image2", img2); //显示图像
-  
 	delete gettemp;
 	delete local_max_point;
-//	cvDestroyWindow( "image" );//销毁窗口
     cvReleaseImage( &img ); //释放图像
-//	cvDestroyWindow( "image2" );//销毁窗口
     cvReleaseImage( &img2 ); //释放图像
 	return result;
 }
 
-bool CCheck::SecondData(DataField *a,DataField tempcheck)//a为样本对象，tempcheck为待测对象
+
+
+bool CCheck::SecondData(DataField *a,DataField tempcheck,int group)//a为样本对象，tempcheck为待测对象
 {
 	DataField temp[8];			//用以投影在二次数据场的数据点的坐标及势值
 	DataField unsort[8];		//在二次数据场中，待排序的8个对象，前7个样本对象，最后1个为待测对象
@@ -284,8 +273,22 @@ bool CCheck::SecondData(DataField *a,DataField tempcheck)//a为样本对象，tempchec
 	//若排序后，待测对象仍排在数组的末尾，则说明该对象在二次数据场中势值最小，且为离群点
 	for(int i=0;i<8;i++)
 	{
-		if(unsort[i].number==8&&i==7&&(unsort[6].value-unsort[7].value)>5)
+		if(unsort[i].number==8&&i==7&&(unsort[6].value-unsort[7].value)>4)
 			flag=true;
 	}
+
+/*	AllocConsole();                     // 打开控制台资源
+
+	printf("\n");
+	printf("%s%d%s\n","第",group,"组：");
+	freopen( "CONOUT$", "w+t", stdout );// 申请写
+	freopen( "CONIN$", "r+t", stdin );  // 申请读
+	for(int i=0;i<8;i++)
+		printf("%f\t%s%d%s%d%s\t%d\n",unsort[i].value,"(",unsort[i].x,",",unsort[i].y,")",unsort[i].number);        // 写数据
+	printf("\n\n\n");*/
+//	char ch = getchar();                // 读数据
+//	FreeConsole();                      // 释放控制台资源
+
+
 	return flag;
 }

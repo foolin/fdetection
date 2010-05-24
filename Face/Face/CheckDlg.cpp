@@ -15,9 +15,9 @@ IMPLEMENT_DYNAMIC(CCheckDlg, CDialog)
 CCheckDlg::CCheckDlg(CWnd* pParent /*=NULL*/)
 	: CDialog(CCheckDlg::IDD, pParent)
 {
+	//³õÊ¼»¯ÈËÁ³¿â¼ÓÔØ±êÖ¾Î»ºÍ´ò¿ªÍ¼Æ¬±êÖ¾Î»ÖÃÎªfalse£¬¼´¾ùÎ´Ö´ĞĞÏàÓ¦²Ù×÷
 	IsAddFace=false;
-	IsOpen=false;
-	
+	IsOpen=false;	
 }
 
 CCheckDlg::~CCheckDlg()
@@ -70,6 +70,7 @@ void CCheckDlg::ShowImage( IplImage* img, UINT ID )	// ID ÊÇPicture Control¿Ø¼şµ
 void CCheckDlg::OnBnClickedCheckdlgAddface()
 {
 	// TODO: ÔÚ´ËÌí¼Ó¿Ø¼şÍ¨Öª´¦Àí³ÌĞò´úÂë
+	//ÅĞ¶ÏÊÇ·ñÒÑ¼ÓÔØÈËÁ³¿â,trueÎªÒÑ¼ÓÔØ
 	if(!IsAddFace)
 	{
 		//ÉèÖÃ³ÌĞòÄ¬ÈÏÂ·¾¶
@@ -86,12 +87,16 @@ void CCheckDlg::OnBnClickedCheckdlgAddface()
 			m_objCheck.temp1[i].y=0;
 		}
 		
-		m_AddFacesTips.ShowWindow(1);
+		//ÏÔÊ¾¾²Ì¬ÎÄ±¾µÄÌáÊ¾ĞÅÏ¢
+		m_AddFacesTips.ShowWindow(1);	
 		m_AddFacesTips.SetWindowTextA("ÕıÔÚ¼ÓÔØÈËÁ³¿â£¬ÇëÉÔºó...");
+		//ÏÔÊ¾½ø¶ÈÌõ
 		m_AddFaceProgress.ShowWindow(1);
+		//ÉèÖÃ½ø¶ÈÌõ³¤¶È
 		m_AddFaceProgress.SetRange(0,21);
 		//³õÊ¼»¯£¬Ëã³öÈËÁ³¿âÖĞµÚÒ»¸öÈËµÄÊı¾İ³¡£¬Çó³öÏàÓ¦µÄ¾Ö²¿¼«Öµ£¬²¢Íê³É×ø±êÈÚºÏ
 		m_objCheck.temp1[0]=m_objCheck.Data("Faces/lib/01/1.jpg",1);
+		//¸üĞÂ½ø¶ÈÌõ
 		m_AddFaceProgress.SetPos(1);
 		m_objCheck.temp1[1]=m_objCheck.Data("Faces/lib/01/2.jpg",2);
 		m_AddFaceProgress.SetPos(2);
@@ -138,7 +143,9 @@ void CCheckDlg::OnBnClickedCheckdlgAddface()
 		
 		IsAddFace=true;
 		MessageBox(_T("¼ÓÔØÍê³É£¡"));
+		//Òş²Ø¾²Ì¬ÎÄ±¾
 		m_AddFacesTips.ShowWindow(0);
+		//Òş²Ø½ø¶ÈÌõ
 		m_AddFaceProgress.ShowWindow(0);
 	}
 	else
@@ -149,6 +156,7 @@ void CCheckDlg::OnBnClickedCheckdlgAddface()
 void CCheckDlg::OnBnClickedCheckdlgOpenpicture()
 {
 	// TODO: ÔÚ´ËÌí¼Ó¿Ø¼şÍ¨Öª´¦Àí³ÌĞò´úÂë
+	//ÅĞ¶ÏÊÇ·ñÒÑ¼ÓÔØÈËÁ³¿â,trueÎªÒÑ¼ÓÔØ
 	if(IsAddFace)
 	{
 		CFileDialog dlg( TRUE, _T("*.bmp"), NULL,
@@ -162,7 +170,7 @@ void CCheckDlg::OnBnClickedCheckdlgOpenpicture()
 		}
 		
 		CString strPath = dlg.GetPathName();			// »ñÈ¡Í¼Æ¬Â·¾¶
-		m_objCheck.m_ReadImage1=cvLoadImage(strPath,0);
+		m_objCheck.m_ReadImage1=cvLoadImage(strPath,0);	//ÒÔµ¥Í¨µÀ¶ÁÈ¡Í¼Æ¬
 		
 		if(!m_objCheck.m_ReadImage1)
 		{
@@ -181,6 +189,7 @@ void CCheckDlg::OnBnClickedCheckdlgOpenpicture()
 		{
 			SetCurrentDirectory(m_strAppPath);
 		}
+		//´ò¿ªÍ¼Æ¬±êÖ¾Î»ÖÃÎªtrue
 		IsOpen=true;
 	}
 	else
@@ -191,15 +200,16 @@ void CCheckDlg::OnBnClickedCheckdlgOpenpicture()
 void CCheckDlg::OnBnClickedCheckdlgShell()
 {
 	// TODO: ÔÚ´ËÌí¼Ó¿Ø¼şÍ¨Öª´¦Àí³ÌĞò´úÂë
+	//½øĞĞÊ¶±ğÖ®Ç°£¬ÏÈÅĞ¶ÏÊÇ·ñÒÑ´ò¿ªÍ¼Æ¬£¬IsOpenÎªtrue£¬ÔòËµÃ÷ÒÑ´ò¿ª
 	if(IsOpen)
 	{
+		//checkflagÎª´ı²â¶ÔÏóÓëÈËÁ³¿âÖĞÏàÓ¦ÈËÁ³½øĞĞÆ¥ÅäºóµÄ±êÖ¾Î»£¬ÈôcheckflagÎªtrue£¬ÔòËµÃ÷¸Ã´ı²â¶ÔÏóÊÇÀëÈºµã
 		bool checkflag1,checkflag2,checkflag3;
-		//DataField tempcheck;
-		//tempcheck=m_objCheck.Data("Faces/lib/01/2.jpg",8);
-		checkflag1=m_objCheck.SecondData(m_objCheck.temp1,m_objCheck.tempcheck);
-		checkflag2=m_objCheck.SecondData(m_objCheck.temp2,m_objCheck.tempcheck);
-		checkflag3=m_objCheck.SecondData(m_objCheck.temp3,m_objCheck.tempcheck);
+		checkflag1=m_objCheck.SecondData(m_objCheck.temp1,m_objCheck.tempcheck,1);
+		checkflag2=m_objCheck.SecondData(m_objCheck.temp2,m_objCheck.tempcheck,2);
+		checkflag3=m_objCheck.SecondData(m_objCheck.temp3,m_objCheck.tempcheck,3);
    
+		//Èô´ı²â¶ÔÏóÓëÈı×éÊı¾İ½øĞĞÆ¥Åäºó£¬¶¼ÎªÀëÈºµã£¬ÔòËµÃ÷¸Ã¶ÔÏóÊÇÄ°ÉúÈË
 		if(checkflag1&&checkflag2&&checkflag3)
 			MessageBox(_T("ÊÇÄ°ÉúÈË!"));
 		else
