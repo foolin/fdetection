@@ -216,7 +216,7 @@ bool CDetect::SetGrayImage(IplImage *image)
 		}
 		else
 		{
-			cvCopy(image, m_pGrayImage);
+			cvCopy(image, m_pGrayImage);	//赋值图像
 		}
 	}
 	else
@@ -261,15 +261,16 @@ bool CDetect::SetBinaryImage(IplImage* image)
 		cvThreshold( image, m_pBinaryImage , 10, 255, CV_THRESH_BINARY ); //取阈值为50把图像转为二值图像
 		return true;
 	}
-	//如果存在m_pGrayImage
+	//如果存在m_pReadImage且不存在m_pGrayImage
 	if(m_pReadImage && !m_pGrayImage)
 	{
 		SetGrayImage();
 	}
+	//如果存在灰度图像
 	if(m_pGrayImage)
 	{
 		m_pBinaryImage = cvCreateImage( cvGetSize( m_pGrayImage), m_pGrayImage->depth, m_pGrayImage->nChannels);	//构造目标图象
-		cvThreshold( m_pGrayImage, m_pBinaryImage , 80, 255, CV_THRESH_BINARY ); //取阈值为50把图像转为二值图像
+		cvThreshold( m_pGrayImage, m_pBinaryImage , 50, 255, CV_THRESH_BINARY ); //取阈值为50把图像转为二值图像
 		return true;
 	}
 	
@@ -436,24 +437,28 @@ cvHaarDetectObjects：检测图像中的目标函数
 			*/
 
 			//根据比例放大原矩形框
-			CvRect rect2 = cvRect( cvRound(r->x*scale), cvRound(r->y*scale), cvRound(r->width * scale), cvRound(r->height * scale));
+			int iRectScale = 0;	//微调矩形参数，0表示不调
+			CvRect rect2 = cvRect( cvRound((r->x + iRectScale) * scale), cvRound( (r->y + iRectScale)  * scale), cvRound( (r->width - iRectScale*2) * scale), cvRound( (r->height - iRectScale*2) * scale));
 			//创建人脸图像
-			IplImage* img2 = cvCreateImage(cvSize(rect2.width , rect2.height), m_pGrayImage->depth, m_pGrayImage->nChannels ); 
+			IplImage* img2 = cvCreateImage(cvSize(rect2.width , rect2.height), m_pGrayImage->depth, m_pGrayImage->nChannels );
+			//设置感兴趣区域（即是人脸区域）
 			cvSetImageROI(m_pGrayImage, rect2);
-			cvCopy(m_pGrayImage,img2);//复制对象区域 
-			//cvShowImage( "result", img2 );
+			//复制对象区域 
+			cvCopy(m_pGrayImage,img2);
+			//
 			cvResetImageROI(m_pGrayImage);
 
-			int isHasEyes = -1;
+			int isHasEyes = -1;	//默认为-1
+			//如果级联分类器不为空，则进行人眼检测
 			if( strEyesCascadeName != _T(""))
 			{
+				//进行人眼检测
 				isHasEyes = HasEyes(img2, strEyesCascadeName);
 			}
 			if(isHasEyes == 0)	//等于0，表示检测不到双眼，即定为误检
 			{
 				m_nFacesCount--;	//人脸数减1
-				//释放图像img2
-				cvReleaseImage(&img2);
+				cvReleaseImage(&img2);	//释放图像img2
 				continue;
 			}
 			else
@@ -464,7 +469,7 @@ cvHaarDetectObjects：检测图像中的目标函数
 				//创建统一大小的人脸图像
 				IplImage* resultImage = cvCreateImage( cvSize(FACE_WIDTH, FACE_HEIGHT) , img2->depth, img2->nChannels);
 				//将人脸图像显规格化
-				cvResize(img2, resultImage, CV_INTER_LINEAR);	//缩放源图像到目标图像
+				cvResize(img2, resultImage, CV_INTER_LINEAR);	//缩放源图像到目标图像,CV_INTER_NN - 最近邻插值,CV_INTER_LINEAR - 双线性插值.
 				//保存图像
 				cvSaveImage(strFaceName, resultImage);
 
@@ -510,20 +515,23 @@ cvHaarDetectObjects：检测图像中的目标函数
 //去除噪声
 void CDetect::RemoveNoise(bool isGrayImage)
 {
+	//判断是否只对灰度图像处理
 	if(isGrayImage)
 	{
+		//只对灰度图像处理
 		IplImage* dst = cvCreateImage( cvGetSize( m_pGrayImage),
 							m_pGrayImage->depth, m_pGrayImage->nChannels);
 		cvSmooth( m_pGrayImage,dst,CV_MEDIAN,3,0);	//中值滤波
-		SetGrayImage( dst );
+		SetGrayImage( dst );	//设置灰度图像
 		cvReleaseImage( &dst);
 	}
 	else
 	{
+		//对读入图像进行处理
 		IplImage* dst = cvCreateImage( cvGetSize( m_pReadImage),
 							m_pReadImage->depth, m_pReadImage->nChannels);
 		cvSmooth( m_pReadImage,dst,CV_MEDIAN,3,0);	//中值滤波
-		SetImage( dst );
+		SetImage( dst );	//将图像赋值给m_pReadImage,m_pGrayImage, m_pBinaryImage
 		cvReleaseImage( &dst);
 	}
 }
@@ -532,10 +540,15 @@ void CDetect::RemoveNoise(bool isGrayImage)
 void CDetect::Normalization( IplImage* image )
 {
 
+	//克隆图像
 	IplImage* imgCopy = cvCloneImage(image);
+	//将传入图像清零
 	cvZero( image );
+	//设置感兴趣区域
 	cvSetImageROI( image, cvRect( 0, 0, FACE_WIDTH, FACE_HEIGHT) );
+	//对人眼进行缩放，即是图像大小规格化
 	cvResize( imgCopy, image , CV_INTER_LINEAR);
+	//释放图像
 	cvReleaseImage( &imgCopy);
 }
 
@@ -561,26 +574,31 @@ void CDetect::Release()
 }
 
 
+//判断是否存在人眼
 int CDetect::HasEyes( IplImage* img, CString strCascadeName)
 {
 	int iEyesCount = 0;	//人眼数
     double scale = 1.3;	//缩放率
 	CvMemStorage* storage = NULL;		//内存空间
 	CvHaarClassifierCascade* cascade;	//级联分类器
-    IplImage* gray = cvCreateImage( cvSize(img->width,img->height), 8, 1 );
-    IplImage* small_img = cvCreateImage( cvSize( cvRound (img->width/scale),
+    IplImage* gray = cvCreateImage( cvSize(img->width,img->height), 8, 1 );	//灰度图像
+    IplImage* small_img = cvCreateImage( cvSize( cvRound (img->width/scale),	//缩小的待检测图像
                          cvRound (img->height/scale)),
                      8, 1 );
 	//判断图像是否已经为灰度图像，如果为灰度图像则直接复制，否则则转为灰度图像
 	if( (img->depth == 8) && (img->nChannels == 1))
 	{
-		cvCopy(img, gray);
+		cvCopy(img, gray);	//直接复制
 	}
 	else
 	{
-		cvCvtColor( img, gray, CV_BGR2GRAY );
+		cvCvtColor( img, gray, CV_BGR2GRAY );	//将图像灰度化并赋值到gray
 	}
+
+	//灰度缩小到small_img
     cvResize( gray, small_img, CV_INTER_LINEAR );
+
+	//直方图均衡化，调整对比度
     cvEqualizeHist( small_img, small_img );
 
 	//创建内存块，如果大小是 0 byte, 则将该块设置成默认值 -- 当前默认大小为64k. 
@@ -594,19 +612,23 @@ int CDetect::HasEyes( IplImage* img, CString strCascadeName)
         return -1;
     }
 
+	//判断是否加载级联分类器成功
     if( cascade )
     {
+		//进行人眼检测
         CvSeq* eyes = cvHaarDetectObjects( small_img, cascade, storage,
                                             1.1, 2, CV_HAAR_DO_CANNY_PRUNING,
                                             cvSize(5, 5) );
+		//如果存在人眼
 		if(eyes)
 		{
-			iEyesCount = eyes->total;
+			iEyesCount = eyes->total;	//检测双眼的对数赋值给iEyesCount
 		}
 
     }
 	//释放图像
     cvReleaseImage( &gray );
     cvReleaseImage( &small_img );
+	//返回人眼数：-1为无法加载级联分类器，0表示没有检测到人眼，其它表示人眼的数目
 	return iEyesCount;
 }

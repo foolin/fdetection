@@ -63,14 +63,16 @@ BOOL CDetectDlg::OnInitDialog()
 	m_showImage = cvCreateImage( imgSize, IPL_DEPTH_8U, 3 );
 
 	//初始化配置文件
-	m_strAppPath = m_objConfig.GetConfig(_T("AppPath"));
-	m_strCascadeName = m_objConfig.GetConfig(_T("Detect"), _T("CascadeName"));
-	m_strEyesCascadeName = m_objConfig.GetConfig(_T("Detect"), _T("EyesCascadeName"));
+	m_strAppPath = m_objConfig.GetConfig(_T("AppPath"));	//程序路径
+	m_strCascadeName = m_objConfig.GetConfig(_T("Detect"), _T("CascadeName"));	//人脸检测级联分类器xml文件
+	m_strEyesCascadeName = m_objConfig.GetConfig(_T("Detect"), _T("EyesCascadeName"));	//人眼检测分类器xml文件
+	//判断是否读取出人脸检测级联分类器xml路径，否则就重设
 	if( m_strCascadeName == _T(""))
 	{
 		m_strCascadeName = _T("xml\\haarcascade_frontalface_alt_tree.xml");
 		m_objConfig.SetConfig(_T("Detect"), _T("CascadeName"), m_strCascadeName);
 	}
+	//判断是否读取人眼检测分类器的xml路径，否则就重设
 	if( m_strEyesCascadeName == _T(""))
 	{
 		m_strEyesCascadeName = _T("xml\\haarcascade_mcs_eyepair_big.xml");
@@ -95,10 +97,10 @@ void CDetectDlg::OnPaint()
 {
 	//CPaintDC dc(this); // device context for painting
 	//// TODO: 在此处添加消息处理程序代码
-	//// 不为绘图消息调用 CDialog::OnPaint()
+	
+	//重绘窗口，防止图像被刷掉
     CDialog::OnPaint();                    // 重绘对话框
     CDialog::UpdateWindow();                // 更新windows窗口，如果无这步调用，图片显示还会出现问题
-    //ShowImage( m_objDetect.m_pReadImage);    // 重绘图片函数
 	ShowImage( m_showImage, IDC_DtPc_ShowImage );		// 重绘图片函数
 
 }
@@ -112,16 +114,18 @@ void CDetectDlg::ShowImage( IplImage* srcImage)	//显示图像，包括缩小图像
 //	cvCopy( srcImage, img, NULL);
 //	ResizeImage(img);	//图片进行缩放
 
-
+	//判断传入图像是否与显示图像的位深度和通道相同，如果不同，则重置显示图像
 	if((srcImage->depth != m_showImage->depth) || (srcImage->nChannels != m_showImage->nChannels))
 	{
-		cvZero(m_showImage);
-		m_showImage = cvCreateImage(cvSize(SHOWIMAGE_WIDTH, SHOWIMAGE_HEIGHT), srcImage->depth, srcImage->nChannels);	//测试用
+		cvZero(m_showImage);	//将图像清零
+		m_showImage = cvCreateImage(cvSize(SHOWIMAGE_WIDTH, SHOWIMAGE_HEIGHT), srcImage->depth, srcImage->nChannels);	//重置显示图像的深度和图像通道
 	}
 
-
+	//对图像进行缩放至显示区域的大小
 	ResizeImage(srcImage);	//图片进行缩放
-	ShowImage( m_showImage, IDC_DtPc_ShowImage );			// 调用显示图片函数	
+
+	//// 调用显示图片函数	
+	ShowImage( m_showImage, IDC_DtPc_ShowImage );
 //	cvReleaseImage( &img);
 
 }
@@ -145,7 +149,7 @@ void CDetectDlg::ShowImage( IplImage* img, UINT ID )	// ID 是Picture Control控件
 	cimg.CopyOf( img );							// 复制图片
 	cimg.DrawToHDC( hDC, &rect );				// 将图片绘制到显示控件的指定区域内
 
-	ReleaseDC( pDC );
+	ReleaseDC( pDC );	//释放显示控件的DC
 }
 
 
@@ -157,6 +161,7 @@ void CDetectDlg::ResizeImage(IplImage* img)
 
 	// 找出宽和高中的较大值者
 	int max = (w > h)? w: h;
+	//找出显示图片控件区域的宽和高中较大者
 	int maxDef = (SHOWIMAGE_WIDTH > SHOWIMAGE_HEIGHT)? SHOWIMAGE_WIDTH : SHOWIMAGE_HEIGHT;
 
 	// 计算将图片缩放到m_showImage区域所需的比例因子
@@ -200,6 +205,8 @@ void CDetectDlg::SetTips( CString strTips)
 void CDetectDlg::OnBnClickedDtbtnOpenimage()
 {
 	// TODO: 在此添加控件通知处理程序代码
+
+	//弹出打开文件对话框
 	CFileDialog dlg( TRUE, _T("*.bmp"), NULL,
 					OFN_FILEMUSTEXIST | OFN_PATHMUSTEXIST | OFN_HIDEREADONLY,
 					_T("image files (*.bmp; *.jpg; *.tiff) |*.bmp; *.jpg; *.tiff| All Files (*.*) |*.*||"),
@@ -210,13 +217,17 @@ void CDetectDlg::OnBnClickedDtbtnOpenimage()
 		return;
 	}
 	
-	CString strPath = dlg.GetPathName();			// 获取图片路径
+	//// 获取图片路径
+	CString strPath = dlg.GetPathName();
 
+	//打开图片
 	if(!m_objDetect.Load(strPath))
 	{
 		MessageBox(_T("无法打开图片"));
 		return;
 	}
+
+	//显示图片
 	ShowImage( m_objDetect.m_pReadImage);
 	//m_objDetect.SetGrayImage();
 	//ShowImage( m_objDetect.m_pGrayImage);
@@ -230,6 +241,7 @@ void CDetectDlg::OnBnClickedDtbtnOpenimage()
 	GetDlgItem( IDC_DtBtn_Detect )->EnableWindow( TRUE );
 	//GetDlgItem( IDC_DtBtn_OpenDir )->EnableWindow( TRUE );
 
+	//提示信息
 	SetTips(_T("已打开图片：") + strPath);
 
 	//重置默认目录，解决xml路径不正确问题
@@ -238,7 +250,8 @@ void CDetectDlg::OnBnClickedDtbtnOpenimage()
 		SetCurrentDirectory(m_strAppPath);
 	}
 
-	m_blnIsShowGray = false;	//重置显示灰度图标志位
+	//重置显示灰度图标志位
+	m_blnIsShowGray = false;
 }
 
 
@@ -246,6 +259,8 @@ void CDetectDlg::OnBnClickedDtbtnOpenimage()
 void CDetectDlg::OnBnClickedDtbtnSaveimage()
 {
 	// TODO: 在此添加控件通知处理程序代码
+
+	//打开保存图像
 	CFileDialog dlg(
 		FALSE, _T("*.bmp"), NULL,
 		OFN_FILEMUSTEXIST | OFN_PATHMUSTEXIST | OFN_HIDEREADONLY,
@@ -258,6 +273,8 @@ void CDetectDlg::OnBnClickedDtbtnSaveimage()
 		return;
 	}
 	CString strPath = dlg.GetPathName();			// 获取图片路径
+
+	//判断是显示读入图像，还是处理后的灰度图像，做相应的保存
 	if(m_blnIsShowGray)
 	{
 		cvSaveImage(strPath, m_objDetect.m_pGrayImage);
@@ -266,6 +283,7 @@ void CDetectDlg::OnBnClickedDtbtnSaveimage()
 	{
 		cvSaveImage(strPath, m_objDetect.m_pReadImage);
 	}
+	//提示保存
 	SetTips(_T("已保存图片到：") + strPath);
 	//提示是否打开文件夹
 	CString strDir = strPath.Left(strPath.ReverseFind(_T('\\')));
@@ -286,46 +304,59 @@ void CDetectDlg::OnBnClickedDtbtnSaveimage()
 void CDetectDlg::OnBnClickedDtbtnDetect()
 {
 	// TODO: 在此添加控件通知处理程序代码
+
+	//定义提示变量
+	CString strTips;
+
+	//提示正在人脸检测
+	SetTips(_T("正在人脸检测，请稍候..."));
+
 		//重置默认目录，解决xml路径不正确问题
 	if(m_strAppPath != _T(""))
 	{
-		SetCurrentDirectory(m_strAppPath);
+		SetCurrentDirectory(m_strAppPath);	//设置当前目录
 	}
-	//如果直接检测，则自动进行去噪处理
+
+	//如果不是直接检测，则自动进行去噪处理
 	if(!m_blnIsShowGray)
 	{
-		m_objDetect.RemoveNoise();
+		m_objDetect.RemoveNoise();	//去除噪声
 	}
+
+	//进行人脸检测
 	if(m_objDetect.FaceDetect(m_strCascadeName, m_strEyesCascadeName))
 	{
 		//显示图像
 		if(m_blnIsShowGray)
 		{
-			ShowImage( m_objDetect.m_pGrayImage);
+			ShowImage( m_objDetect.m_pGrayImage);	//显示灰度图像
 		}
 		else
 		{
-			ShowImage( m_objDetect.m_pReadImage);
+			ShowImage( m_objDetect.m_pReadImage);	//显示读入图像
 		}
 		
-		//增加提示
-		CString strTips;
+		//获取检测人脸数
 		int m_facesCount = m_objDetect.m_nFacesCount;
+		//根据人脸数做相应的处理
 		if (m_facesCount > 0)
 		{
-			strTips.Format(_T("检测完毕！共检测到%d张人脸！\n人脸图像已保存!"), m_facesCount, m_strAppPath);
+			strTips.Format(_T("检测完毕！共检测到%d张人脸！\n人脸图像已保存至Faces目录!"), m_facesCount, m_strAppPath);
 		}
 		else
 		{
 			strTips.Format(_T("检测完毕！没有检测到人脸！"), m_facesCount);
 		}
-		SetTips(strTips);
 	}
 	else
 	{
-		SetTips(_T("检测失败：") + m_objDetect.m_strErrMessage);	//检测失败
+		strTips.Format(_T("检测失败：%s"),m_objDetect.m_strErrMessage);//检测失败
 	}
-	//MessageBox("人脸处理完毕");
+	//在控件里显示提示
+	SetTips(strTips);
+	//弹出提示对话框
+	//MessageBox(strTips);
+	//使检测按钮失效
 	GetDlgItem( IDC_DtBtn_Detect )->EnableWindow( FALSE );
 
 }
@@ -348,30 +379,41 @@ void CDetectDlg::OnBnClickedDtbtnAbout()
 
 
 
-
+//转灰度图像
 void CDetectDlg::OnBnClickedDtbtn2gray()
 {
 	// TODO: 在此添加控件通知处理程序代码
-	if(!m_blnIsShowGray)	//判断是否已经显示灰度图像
+
+	//判断不是已经显示灰度图像
+	if(!m_blnIsShowGray)	
 	{
-		m_objDetect.SetGrayImage();
+		m_objDetect.SetGrayImage();	//进行灰度图像转换
 	}
+	//显示灰度图像
 	ShowImage( m_objDetect.m_pGrayImage);
+	//置显示灰度图像为true
 	m_blnIsShowGray = true;
 }
 
+//直方图均衡化：调整对比度
 void CDetectDlg::OnBnClickedDtbtnEqualhist()
 {
 	// TODO: 在此添加控件通知处理程序代码
+
+	//直方图均衡化，即调整图像的对比度
 	m_objDetect.EqualizeHist();
+	//显示处理后图像
 	ShowImage( m_objDetect.m_pGrayImage);
+	//设置显示灰度图像为true
 	m_blnIsShowGray = true;
 }
 
 void CDetectDlg::OnBnClickedDtbtnRemovenoise()
 {
 	// TODO: 在此添加控件通知处理程序代码
-	//m_objDetect.RemoveNoise(true);
+	
+	//去除噪声，参数：是否只对转换灰度图像进行去噪声
 	m_objDetect.RemoveNoise(m_blnIsShowGray);
+	//显示图像
 	ShowImage( m_objDetect.m_pGrayImage);
 }
